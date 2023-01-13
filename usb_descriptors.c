@@ -65,7 +65,7 @@ tusb_desc_device_t const desc_device =
 
 // Invoked when received GET DEVICE DESCRIPTOR
 // Application return pointer to descriptor
-uint8_t const * tud_descriptor_device_cb(void)
+uint8_t const * tud_descriptor_device_cb()
 {
     return (uint8_t const *) &desc_device;
 }
@@ -112,9 +112,9 @@ uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
 char const* string_desc_arr [] =
         {
                 (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
-                "Andamirn'to",                     // 1: Manufacturer
-                "Andamirn'to PIUIO",              // 2: Product
-                "123456",                      // 3: Serials, should use chip ID
+                "sugoku",                     // 1: Manufacturer
+                "brokeIO",              // 2: Product
+                "727",                      // 3: Serials, should use chip ID
                 "PIUIO-pico"               // 4: Vendor Interface
         };
 

@@ -14,6 +14,8 @@ target_sources(piuio_pico PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/main.c
         ${CMAKE_CURRENT_LIST_DIR}/piuio_ws2812.c
         ${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c
+        ${CMAKE_CURRENT_LIST_DIR}/input_mux4067.c
+        ${CMAKE_CURRENT_LIST_DIR}/lights_latch32.c
         )
 
 # Make sure TinyUSB can find tusb_config.h
@@ -21,6 +23,7 @@ target_include_directories(piuio_pico PUBLIC
         ${CMAKE_CURRENT_LIST_DIR})
 
 pico_generate_pio_header(piuio_pico ${CMAKE_CURRENT_LIST_DIR}/ws2812.pio)
+pico_generate_pio_header(piuio_pico ${CMAKE_CURRENT_LIST_DIR}/sspi.pio)
 
 # In addition to pico_stdlib required for common PicoSDK functionality, add dependency on tinyusb_device
 # for TinyUSB device support and tinyusb_board for the additional board support library used by the example

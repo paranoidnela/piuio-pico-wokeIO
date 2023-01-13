@@ -8,7 +8,45 @@ enum state {
     UNUSED
 };
 
-struct lampArray {
+struct inputArray {
+    union{
+        uint8_t data[8];
+        struct {
+            // p1 input byte 0
+            uint8_t p1_ul : 1;
+            uint8_t p1_ur : 1;
+            uint8_t p1_cn : 1;
+            uint8_t p1_dl : 1;
+            uint8_t p1_dr : 1;
+            uint8_t empty1 : 3;
+
+            // p1 input byte 1
+            uint8_t empty2 : 1;
+            uint8_t test : 1;
+            uint8_t p1_coin : 1;
+            uint8_t empty3 : 3;
+            uint8_t service : 1;
+            uint8_t clear : 1;
+
+            // p2 input byte 2
+            uint8_t p2_ul : 1;
+            uint8_t p2_ur : 1;
+            uint8_t p2_cn : 1;
+            uint8_t p2_dl : 1;
+            uint8_t p2_dr : 1;
+            uint8_t empty4 : 3;
+
+            // p2 input byte 3
+            uint8_t empty5 : 2;
+            uint8_t p2_coin : 1;
+            uint8_t empty6 : 5;
+
+            uint32_t empty7 : 32;
+        };
+    };
+};
+
+struct lightsArray {
     union{
         uint8_t data[8];
         struct {
