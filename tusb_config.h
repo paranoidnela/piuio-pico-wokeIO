@@ -1,3 +1,8 @@
+/**********************************************************/
+/*  SPDX-License-Identifier: MIT                          */
+/*  https://github.com/sugoku/piuio-pico-brokeIO          */
+/**********************************************************/
+
 /*
  * The MIT License (MIT)
  *

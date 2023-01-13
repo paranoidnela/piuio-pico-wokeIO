@@ -26,4 +26,8 @@ This project is based off of the [tinyusb device USB examples](https://github.co
 In addition, the st7789_lcd example from Raspberry Pi's [pico-examples](https://github.com/raspberrypi/pico-examples/tree/master/pio/st7789_lcd) repository were used for software SPI.
 
 Protocol information from the [PIUIO_Arduino](https://github.com/ckdur/PIUIO_Arduino/) and [piuio_clone](https://github.com/racerxdl/piuio_clone/) repositories.
-A few short snippets of code were also derived from piuio_clone, which is under the GPLv3 license but express permission has been granted by racerxdl to relicense these snippets under BSD-3.
+A few short snippets of code were also derived from piuio_clone, which is under the GPLv3 license but express permission has been granted by racerxdl to relicense these snippets under MIT.
+
+
+## License Notice
+All code is licensed under the MIT License unless otherwise indicated, such as the .pio files, which are under the BSD-3 license.

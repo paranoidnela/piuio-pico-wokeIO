@@ -1,3 +1,7 @@
+/**********************************************************/
+/*  SPDX-License-Identifier: MIT                          */
+/*  https://github.com/sugoku/piuio-pico-brokeIO          */
+/**********************************************************/
 
 #include "piuio_config.h"
 

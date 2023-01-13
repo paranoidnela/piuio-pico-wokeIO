@@ -1,5 +1,7 @@
-
-// check with racer to make sure we can submit this as MIT instead of GPL
+/**********************************************************/
+/*  SPDX-License-Identifier: MIT                          */
+/*  https://github.com/sugoku/piuio-pico-brokeIO          */
+/**********************************************************/
 
 #include "bsp/board.h"
 #include "device/usbd.h"
