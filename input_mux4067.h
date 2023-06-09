@@ -7,6 +7,7 @@
 #define _INPUT_MUX4067_H
 
 #include "piuio_config.h"
+#include "piuio_structs.h"
 
 extern uint32_t mux4067_vals[5];  // 1 for each MUX state + global, we are caching them so we can poll faster even when the PC isn't asking
 

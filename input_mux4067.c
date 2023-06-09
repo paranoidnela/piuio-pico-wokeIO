@@ -121,5 +121,5 @@ void mux4067_update(uint8_t mux_p1, uint8_t mux_p2) {
 }
 
 uint32_t mux4067_merged(uint32_t* vals) {
-    return vals[0] | vals[1] | vals[2] | vals[3];
+    return vals[0] | vals[1] | vals[2] | vals[3] | vals[4];
 }

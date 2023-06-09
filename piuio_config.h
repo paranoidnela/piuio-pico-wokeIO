@@ -9,6 +9,7 @@
 
 #include "hardware/timer.h"
 
+#include "usb_descriptors.h"
 
 // helpful regex
 // CLRBIT\(\w+, (\w+)\)
@@ -27,12 +28,23 @@
 #define CLRBIT(port,bit) ((port) &= ~(1 << (bit)))   // set bit to 0 (clear bit)
 #define SETORCLRBIT(port,bit,val) if (val) { SETBIT(port,bit); } else { CLRBIT(port,bit); }  // if true, set bit to 1, if false, clear bit to 0
 
-
+// use software SPI to control latch for outputs
+// for some reason hardware SPI wasn't working right for me so I have it enabled
 #define SOFTWARE_LATCH
+
+// enable pullup resistors for inputs
+// (only disable this if you know what you are doing!)
 #define PULLUP_IN
 
 #define MUX_GLOBAL 4
 
+// default input mode unless otherwise specified in the flash memory
+#define DEFAULT_INPUT_MODE INPUT_MODE_PIUIO
+
+#define MAX_USB_POWER 0xFA  // (500mA)
+
+// threshold in ms to hold SERVICE button to enter mode select (settings menu)
+#define SETTINGS_THRESHOLD 2000
 
 // Uncomment these defines to enable WS2812 LED support.
 //#define ENABLE_WS2812_SUPPORT
@@ -96,6 +108,8 @@ static uint32_t ws2812_color[5] = {
 #define LATCH_COIN_COUNTER 3
 #define LATCH_ALWAYS_ON 4
 
+#define LATCH_JAMMA_LED 20
+
 
 // other pins
 #define MUX_ENABLE_PIN 21
@@ -113,6 +127,38 @@ static uint32_t ws2812_color[5] = {
 
 #define SOFTWARE_SPI_DIN_PIN 9
 #define SOFTWARE_SPI_CLK_PIN 8
+
+
+// other defines
+// offset from XIP_BASE, let's make it 1MiB from the start
+#define INPUT_MODE_OFFSET (1024 * 1024)
+// turn LED on for 200ms every 400ms 
+#define SERVICE_BLINK_LENGTH 200
+#define SERVICE_BLINK_INTERVAL 400
+
+
+// HID defines
+
+#define KEYCODE_P1_UPLEFT 81
+#define KEYCODE_P1_UPRIGHT 69
+#define KEYCODE_P1_CENTER 83
+#define KEYCODE_P1_DOWNLEFT 90
+#define KEYCODE_P1_DOWNRIGHT 67
+
+#define KEYCODE_P2_UPLEFT 103
+#define KEYCODE_P2_UPRIGHT 105
+#define KEYCODE_P2_CENTER 101
+#define KEYCODE_P2_DOWNLEFT 97
+#define KEYCODE_P2_DOWNRIGHT 99
+
+// F5, F6
+#define KEYCODE_P1_COIN 116
+#define KEYCODE_P2_COIN 117
+
+// F2, F9, F1
+#define KEYCODE_TEST 113
+#define KEYCODE_SERVICE 120
+#define KEYCODE_CLEAR 112
 
 
 #endif //PIUIO_PICO_PIUIO_CONFIG_H
