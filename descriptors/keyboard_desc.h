@@ -7,14 +7,14 @@
 #define KEY_COUNT 104
 
 static const uint8_t keyboard_string_language[]    = { 0x09, 0x04 };
-static const uint8_t keyboard_string_manfacturer[] = "sugoku";
+static const uint8_t keyboard_string_manufacturer[] = "sugoku";
 static const uint8_t keyboard_string_product[]     = "brokeIO (Keyboard)";
 static const uint8_t keyboard_string_version[]     = "727";
 
 static const uint8_t *keyboard_string_descriptors[] =
 {
 	keyboard_string_language,
-	keyboard_string_manfacturer,
+	keyboard_string_manufacturer,
 	keyboard_string_product,
 	keyboard_string_version
 };
@@ -23,7 +23,7 @@ static const uint8_t keyboard_device_descriptor[] =
 {
 	sizeof(tusb_desc_device_t),	// bLength
 	TUSB_DESC_DEVICE,			// bDescriptorType
-	0x10, 0x01,					// bcdUSB
+	0x00, 0x02,					// bcdUSB 2.00
 	0x00,						// bDeviceClass
 	0x00,						// bDeviceSubClass
 	0x00,						// bDeviceProtocol

@@ -61,7 +61,7 @@ static XInputReport xinputReport = {
 	._reserved = { },
 };
 
-uint16_t xinput_get_report(XInputReport* report, struct inputArray* input) {
+uint16_t xinput_get_report(XInputReport** report, struct inputArray* input) {
 	xinputReport.buttons1 = 0
 		| (!input->p1_cn  ? XBOX_MASK_UP    : 0)
 		| (!input->p1_dr  ? XBOX_MASK_DOWN  : 0)
@@ -91,7 +91,7 @@ uint16_t xinput_get_report(XInputReport* report, struct inputArray* input) {
 	xinputReport.lt = (!input->p1_coin) ? 0xFF : 0;
 	xinputReport.rt = (!input->p2_coin) ? 0xFF : 0;
 
-	report = &xinputReport;
+	*report = &xinputReport;
 	return sizeof(XInputReport);
 }
 

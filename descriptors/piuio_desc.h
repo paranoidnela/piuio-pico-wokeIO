@@ -20,16 +20,18 @@ enum
 #define EPNUM_VENDOR_OUT 0x01
 
 static const uint8_t piuio_string_language[]    = { 0x09, 0x04 };
-static const uint8_t piuio_string_manfacturer[] = "sugoku";
+static const uint8_t piuio_string_manufacturer[] = "sugoku";
 static const uint8_t piuio_string_product[]     = "brokeIO (PIUIO)";
 static const uint8_t piuio_string_version[]     = "727";
+static const uint8_t piuio_string_vendor_interface[] = "piuio-pico-brokeIO";
 
 static const uint8_t *piuio_string_descriptors[] =
 {
 	piuio_string_language,
-	piuio_string_manfacturer,
+	piuio_string_manufacturer,
 	piuio_string_product,
-	piuio_string_version
+	piuio_string_version,
+        piuio_string_vendor_interface
 };
 
 tusb_desc_device_t const piuio_device_descriptor =
@@ -62,7 +64,7 @@ static const uint8_t piuio_configuration_descriptor[] =
                 TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, PIUIO_CONFIG_TOTAL_LEN, 0x00, 500),
 
                 // Interface number, string index, EP Out & IN address, EP size
-                TUD_VENDOR_DESCRIPTOR(ITF_NUM_VENDOR, 5, EPNUM_VENDOR_OUT, 0x80 | EPNUM_VENDOR_IN,
+                TUD_VENDOR_DESCRIPTOR(ITF_NUM_VENDOR, 4, EPNUM_VENDOR_OUT, 0x80 | EPNUM_VENDOR_IN,
                                       TUD_OPT_HIGH_SPEED ? 512 : 64)
         };
 

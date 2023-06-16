@@ -27,14 +27,14 @@ typedef struct __attribute((packed, aligned(1)))
 } XInputReport;
 
 static const uint8_t xinput_string_language[]    = { 0x09, 0x04 };
-static const uint8_t xinput_string_manfacturer[] = "Microsoft";
+static const uint8_t xinput_string_manufacturer[] = "Microsoft";
 static const uint8_t xinput_string_product[]     = "XInput STANDARD GAMEPAD";
 static const uint8_t xinput_string_version[]     = "1.0";
 
 static const uint8_t *xinput_string_descriptors[] =
 {
 	xinput_string_language,
-	xinput_string_manfacturer,
+	xinput_string_manufacturer,
 	xinput_string_product,
 	xinput_string_version
 };

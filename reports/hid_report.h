@@ -83,22 +83,22 @@ typedef struct __attribute((packed, aligned(1)))
 
     // Gonna assume these are button analog values for the d-pad.
     // NOTE: NOT EVEN SURE THIS IS RIGHT, OR IN THE CORRECT ORDER
-    uint8_t right_axis;
-    uint8_t left_axis;
-    uint8_t up_axis;
-    uint8_t down_axis;
+    // uint8_t right_axis;
+    // uint8_t left_axis;
+    // uint8_t up_axis;
+    // uint8_t down_axis;
 
-    // button axis, 0x00 = unpressed, 0xff = fully pressed
+    // // button axis, 0x00 = unpressed, 0xff = fully pressed
 
-    uint8_t triangle_axis;
-    uint8_t circle_axis;
-    uint8_t cross_axis;
-    uint8_t square_axis;
+    // uint8_t triangle_axis;
+    // uint8_t circle_axis;
+    // uint8_t cross_axis;
+    // uint8_t square_axis;
 
-    uint8_t l1_axis;
-    uint8_t r1_axis;
-    uint8_t l2_axis;
-    uint8_t r2_axis;
+    // uint8_t l1_axis;
+    // uint8_t r1_axis;
+    // uint8_t l2_axis;
+    // uint8_t r2_axis;
 } HIDReport;
 
 static HIDReport hidReport = {
@@ -107,12 +107,12 @@ static HIDReport hidReport = {
     .p1_coin = 0, .p2_coin = 0, .test = 0, .service = 0, .clear = 0,
     .direction = 0x08,
     .l_x_axis = 0x80, .l_y_axis = 0x80, .r_x_axis = 0x80, .r_y_axis = 0x80,
-    .right_axis = 0x00, .left_axis = 0x00, .up_axis = 0x00, .down_axis = 0x00,
-    .triangle_axis = 0x00, .circle_axis = 0x00, .cross_axis = 0x00, .square_axis = 0x00,
-    .l1_axis = 0x00, .r1_axis = 0x00, .l2_axis = 0x00, .r2_axis = 0x00
+    // .right_axis = 0x00, .left_axis = 0x00, .up_axis = 0x00, .down_axis = 0x00,
+    // .triangle_axis = 0x00, .circle_axis = 0x00, .cross_axis = 0x00, .square_axis = 0x00,
+    // .l1_axis = 0x00, .r1_axis = 0x00, .l2_axis = 0x00, .r2_axis = 0x00
 };
 
-uint16_t hid_get_report(HIDReport* report, struct inputArray* input) {
+uint16_t hid_get_report(HIDReport** report, struct inputArray* input) {
     // switch (state.dpad & GAMEPAD_MASK_DPAD)
     // {
     //     case GAMEPAD_MASK_UP:                        hidReport.direction = HID_HAT_UP;        break;
@@ -125,32 +125,33 @@ uint16_t hid_get_report(HIDReport* report, struct inputArray* input) {
     //     case GAMEPAD_MASK_UP | GAMEPAD_MASK_LEFT:    hidReport.direction = HID_HAT_UPLEFT;    break;
     //     default:                                     hidReport.direction = HID_HAT_NOTHING;   break;
     // }
+    hidReport.p1_ul = !input->p1_ul;
+    hidReport.p1_ur = !input->p1_ur;
+    hidReport.p1_cn = !input->p1_cn;
+    hidReport.p1_dl = !input->p1_dl;
+    hidReport.p1_dr = !input->p1_dr;
 
-    hidReport.p1_ul = input->p1_ul;
-    hidReport.p1_ur = input->p1_ur;
-    hidReport.p1_cn = input->p1_cn;
-    hidReport.p1_dl = input->p1_dl;
-    hidReport.p1_dr = input->p1_dr;
+    hidReport.p2_ul = !input->p2_ul;
+    hidReport.p2_ur = !input->p2_ur;
+    hidReport.p2_cn = !input->p2_cn;
+    hidReport.p2_dl = !input->p2_dl;
+    hidReport.p2_dr = !input->p2_dr;
 
-    hidReport.p2_ul = input->p2_ul;
-    hidReport.p2_ur = input->p2_ur;
-    hidReport.p2_cn = input->p2_cn;
-    hidReport.p2_dl = input->p2_dl;
-    hidReport.p2_dr = input->p2_dr;
+    hidReport.p1_coin = !input->p1_coin;
+    hidReport.p2_coin = !input->p2_coin;
 
-    hidReport.p1_coin = input->p1_coin;
-    hidReport.p2_coin = input->p2_coin;
+    hidReport.test = !input->test;
+    hidReport.service = !input->service;
+    hidReport.clear = !input->clear;
 
-    hidReport.test = input->test;
-    hidReport.service = input->service;
-    hidReport.clear = input->clear;
+    hidReport.direction = HID_HAT_NOTHING;
 
-    //hidReport.l_x_axis = static_cast<uint8_t>(state.lx >> 8);
-    //hidReport.l_y_axis = static_cast<uint8_t>(state.ly >> 8);
-    //hidReport.r_x_axis = static_cast<uint8_t>(state.rx >> 8);
-    //hidReport.r_y_axis = static_cast<uint8_t>(state.ry >> 8);
+    hidReport.l_x_axis = 0x80; hidReport.l_y_axis = 0x80; hidReport.r_x_axis = 0x80; hidReport.r_y_axis = 0x80;
+    // hidReport.right_axis = 0x00; hidReport.left_axis = 0x00; hidReport.up_axis = 0x00; hidReport.down_axis = 0x00;
+    // hidReport.triangle_axis = 0x00; hidReport.circle_axis = 0x00; hidReport.cross_axis = 0x00; hidReport.square_axis = 0x00;
+    // hidReport.l1_axis = 0x00; hidReport.r1_axis = 0x00; hidReport.l2_axis = 0x00; hidReport.r2_axis = 0x00;
 
-    report = &hidReport;
+    *report = &hidReport;
     return sizeof(HIDReport);
 }
 

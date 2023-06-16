@@ -3,23 +3,14 @@
 /*  https://github.com/sugoku/piuio-pico-brokeIO          */
 /**********************************************************/
 
-#ifndef PIUIO_PICO_PIUIO_CONFIG_H
-#define PIUIO_PICO_PIUIO_CONFIG_H
+#ifndef _PIUIO_CONFIG_H
+#define _PIUIO_CONFIG_H
 #include "piuio_ws2812_helpers.h"
 
 #include "hardware/timer.h"
 
 #include "usb_descriptors.h"
-
-// helpful regex
-// CLRBIT\(\w+, (\w+)\)
-// gpio_put($1, 0)
-// SETBIT\(\w+, (\w+)\)
-// gpio_put($1, 1)
-// SETORCLRBIT\(.+, (.+), (.+)\)
-// gpio_put($1, $2)
-// (\w+.\w+) = buf\[(\w+)\]
-// SETORCLRBIT(buf, $2, $1)
+#include "usb_hid_keys.h"
 
 // helper defines
 
@@ -32,14 +23,26 @@
 // for some reason hardware SPI wasn't working right for me so I have it enabled
 #define SOFTWARE_LATCH
 
+// debounce time in milliseconds
+#define DEBOUNCE_PRESS_TIME 15
+#define DEBOUNCE_RELEASE_TIME 15
+
 // enable pullup resistors for inputs
 // (only disable this if you know what you are doing!)
 #define PULLUP_IN
 
 #define MUX_GLOBAL 4
 
+// always allow pad combo to enter bootloader; otherwise, it must be done in the service mode
+#define ALWAYS_BOOTLOADER false
+
 // default input mode unless otherwise specified in the flash memory
 #define DEFAULT_INPUT_MODE INPUT_MODE_PIUIO
+
+// uncomment to always use the default input mode on boot instead of what's in the flash memory
+// disables reading/writing to flash also
+// (you will not be able to change the mode until reflashing!)
+//#define ALWAYS_DEFAULT_INPUT_MODE
 
 #define MAX_USB_POWER 0xFA  // (500mA)
 
@@ -139,26 +142,28 @@ static uint32_t ws2812_color[5] = {
 
 // HID defines
 
-#define KEYCODE_P1_UPLEFT 81
-#define KEYCODE_P1_UPRIGHT 69
-#define KEYCODE_P1_CENTER 83
-#define KEYCODE_P1_DOWNLEFT 90
-#define KEYCODE_P1_DOWNRIGHT 67
+// in lane order: zqsec 17593
 
-#define KEYCODE_P2_UPLEFT 103
-#define KEYCODE_P2_UPRIGHT 105
-#define KEYCODE_P2_CENTER 101
-#define KEYCODE_P2_DOWNLEFT 97
-#define KEYCODE_P2_DOWNRIGHT 99
+#define KEYCODE_P1_UPLEFT KEY_Q
+#define KEYCODE_P1_UPRIGHT KEY_E
+#define KEYCODE_P1_CENTER KEY_S
+#define KEYCODE_P1_DOWNLEFT KEY_Z
+#define KEYCODE_P1_DOWNRIGHT KEY_C
+
+#define KEYCODE_P2_UPLEFT KEY_KP7
+#define KEYCODE_P2_UPRIGHT KEY_KP9
+#define KEYCODE_P2_CENTER KEY_KP5
+#define KEYCODE_P2_DOWNLEFT KEY_KP1
+#define KEYCODE_P2_DOWNRIGHT KEY_KP3
 
 // F5, F6
-#define KEYCODE_P1_COIN 116
-#define KEYCODE_P2_COIN 117
+#define KEYCODE_P1_COIN KEY_F5
+#define KEYCODE_P2_COIN KEY_F6
 
 // F2, F9, F1
-#define KEYCODE_TEST 113
-#define KEYCODE_SERVICE 120
-#define KEYCODE_CLEAR 112
+#define KEYCODE_TEST KEY_F2
+#define KEYCODE_SERVICE KEY_F9
+#define KEYCODE_CLEAR KEY_F1
 
 
-#endif //PIUIO_PICO_PIUIO_CONFIG_H
+#endif //_PIUIO_CONFIG_H

@@ -36,7 +36,7 @@ void keyboard_release_all_keys(void) {
     }
 }
 
-uint16_t keyboard_get_report(KeyboardReport* report, struct inputArray* input) {
+uint16_t keyboard_get_report(KeyboardReport** report, struct inputArray* input) {
     keyboard_release_all_keys();
 
     if(!input->p1_ul)  { keyboard_press_key(KEYCODE_P1_UPLEFT); }
@@ -58,7 +58,7 @@ uint16_t keyboard_get_report(KeyboardReport* report, struct inputArray* input) {
     if(!input->service)  { keyboard_press_key(KEYCODE_SERVICE); }
     if(!input->clear)    { keyboard_press_key(KEYCODE_CLEAR); }
 
-    report = &keyboardReport;
+    *report = &keyboardReport;
     return sizeof(KeyboardReport);
 }
 

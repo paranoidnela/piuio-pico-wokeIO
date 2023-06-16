@@ -3,8 +3,8 @@
 /*  https://github.com/sugoku/piuio-pico-brokeIO          */
 /**********************************************************/
 
-#ifndef PIUIO_PICO_PIUIO_STRUCTS_H
-#define PIUIO_PICO_PIUIO_STRUCTS_H
+#ifndef _PIUIO_STRUCTS_H
+#define _PIUIO_STRUCTS_H
 
 enum state {
     PLAYER_1,
@@ -91,4 +91,4 @@ struct lightsArray {
     };
 };
 
-#endif //PIUIO_PICO_PIUIO_STRUCTS_H
+#endif //_PIUIO_STRUCTS_H

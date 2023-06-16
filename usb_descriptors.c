@@ -144,49 +144,63 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid)
 {
     (void) langid;
 
-	uint16_t size;
-	uint8_t charCount;
+	uint8_t chr_count;
 
-    const char* string_desc;
+    const char** string_desc_arr;
 
     switch (get_input_mode())
 	{
         case INPUT_MODE_GAMEPAD:
-			string_desc = (const char*)hid_string_descriptors;
+			string_desc_arr = (const char**)hid_string_descriptors;
             break;
 
         case INPUT_MODE_LXIO:
-			string_desc = (const char*)lxio_string_descriptors;
+			string_desc_arr = (const char**)lxio_string_descriptors;
             break;
 
         case INPUT_MODE_KEYBOARD:
-			string_desc = (const char*)keyboard_string_descriptors;
+			string_desc_arr = (const char**)keyboard_string_descriptors;
             break;
 
 		case INPUT_MODE_XINPUT:
-			string_desc = (const char*)xinput_string_descriptors;
+			string_desc_arr = (const char**)xinput_string_descriptors;
             break;
 
 		case INPUT_MODE_SWITCH:
-			string_desc = (const char*)switch_string_descriptors;
+			string_desc_arr = (const char**)switch_string_descriptors;
             break;
 
 		default:
-			string_desc = (const char*)piuio_string_descriptors;
+			string_desc_arr = (const char**)piuio_string_descriptors;
             break;
 	}
 
-    // Cap at max char
-	charCount = strlen(string_desc);
-	if (charCount > 31)
-		charCount = 31;
+    if ( index == 0)
+	{
+		memcpy(&_desc_str[1], string_desc_arr[0], 2);
+		chr_count = 1;
+	}else
+	{
+		// Note: the 0xEE index string is a Microsoft OS 1.0 Descriptors.
+		// https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/microsoft-defined-usb-descriptors
 
-	for (uint8_t i = 0; i < charCount; i++)
-		_desc_str[1 + i] = string_desc[i];
+		//if ( !(index < sizeof(string_desc_arr)/sizeof(string_desc_arr[0])) ) return NULL;
+
+		const char* str = string_desc_arr[index];
+
+		// Cap at max char
+		chr_count = (uint8_t) strlen(str);
+		if ( chr_count > 31 ) chr_count = 31;
+
+		// Convert ASCII string into UTF-16
+		for(uint8_t i=0; i<chr_count; i++)
+		{
+		_desc_str[1+i] = str[i];
+		}
+	}
 
 	// first byte is length (including header), second byte is string type
-	_desc_str[0] = (2 * charCount + 2);
-	_desc_str[1] = 0x03;
+	_desc_str[0] = (uint16_t) ((TUSB_DESC_STRING << 8 ) | (2*chr_count + 2));
 
 	return _desc_str;
 }

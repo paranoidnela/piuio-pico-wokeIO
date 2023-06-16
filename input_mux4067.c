@@ -5,8 +5,15 @@
 
 #include "input_mux4067.h"
 
-uint32_t mux4067_vals[5];
-// uint8_t last_mux;
+#include "bsp/board.h"
+
+uint32_t mux4067_vals[5] = {0};
+uint32_t mux4067_vals_db[5] = {0};  // debounced
+
+// debouncing helper arrays
+uint32_t mux4067_vals_last[5] = {0};
+uint32_t press_ts[5][32] = {0};
+uint32_t release_ts[5][32] = {0};
 
 #define MUX_P1_INPUTS_SIZE 5
 const uint8_t mux_p1_inputs[] = {
@@ -68,8 +75,10 @@ void mux4067_disable() {
 
 void mux4067_reset() {
     // set read inputs to 0
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 5; i++) {
         mux4067_vals[i] = 0;
+        mux4067_vals_db[i] = 0;
+    }
 
     // clear all selector pins
     gpio_put(MUX_S0_PIN, 0);
@@ -122,4 +131,29 @@ void mux4067_update(uint8_t mux_p1, uint8_t mux_p2) {
 
 uint32_t mux4067_merged(uint32_t* vals) {
     return vals[0] | vals[1] | vals[2] | vals[3] | vals[4];
+}
+
+void mux4067_debounce() {
+    uint32_t current_ts = board_millis();
+    
+    for (int mux = 0; mux < 5; mux++) {
+        for (int i = 0; i < 32; i++) {
+            uint32_t state = GETBIT(mux4067_vals[mux], i);
+            
+            if (state != (GETBIT(mux4067_vals_last[mux], i))) {
+                // button state has changed
+                if (state) {
+                    press_ts[mux][i] = current_ts;
+                } else {
+                    release_ts[mux][i] = current_ts;
+                }
+            } else if (state && (current_ts - press_ts[mux][i]) >= DEBOUNCE_PRESS_TIME) {
+                // check if the button has been held for debounce time
+                SETBIT(mux4067_vals_db[mux], i); // set debounced button state
+            } else if (!state && (current_ts - release_ts[mux][i]) >= DEBOUNCE_RELEASE_TIME) {
+                CLRBIT(mux4067_vals_db[mux], i);
+            }
+        }
+        mux4067_vals_last[mux] = mux4067_vals[mux]; // store current button state for next iteration
+    }
 }

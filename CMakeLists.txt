@@ -17,6 +17,7 @@ target_sources(piuio_pico PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/input_mux4067.c
         ${CMAKE_CURRENT_LIST_DIR}/input_mode.c
         ${CMAKE_CURRENT_LIST_DIR}/lights_latch32.c
+        ${CMAKE_CURRENT_LIST_DIR}/xinput_driver.c
         )
 
 # Make sure TinyUSB can find tusb_config.h

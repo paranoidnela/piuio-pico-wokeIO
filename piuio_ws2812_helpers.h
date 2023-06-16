@@ -3,8 +3,8 @@
 /*  https://github.com/sugoku/piuio-pico-brokeIO          */
 /**********************************************************/
 
-#ifndef PIUIO_PICO_PIUIO_WS2812_HELPERS_H
-#define PIUIO_PICO_PIUIO_WS2812_HELPERS_H
+#ifndef _PIUIO_WS2812_HELPERS_H
+#define _PIUIO_WS2812_HELPERS_H
 
 #include <stdint.h>
 #include "hardware/pio.h"
@@ -18,4 +18,4 @@ static inline void put_pixel(uint32_t pixel_grb) {
                           (uint32_t) (b)
 
 
-#endif //PIUIO_PICO_PIUIO_WS2812_HELPERS_H
+#endif //_PIUIO_WS2812_HELPERS_H

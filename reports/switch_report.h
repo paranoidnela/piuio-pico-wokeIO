@@ -73,7 +73,7 @@ static SwitchReport switchReport = {
 	.vendor = 0,
 };
 
-uint16_t switch_get_report(SwitchReport* report, struct inputArray* input) {
+uint16_t switch_get_report(SwitchReport** report, struct inputArray* input) {
 	switchReport.hat = SWITCH_HAT_NOTHING;  
 	if (!input->p1_cn) switchReport.hat = SWITCH_HAT_UP;
 	if (!input->p1_cn && !input->p1_ur) switchReport.hat = SWITCH_HAT_UPRIGHT;  
@@ -106,7 +106,7 @@ uint16_t switch_get_report(SwitchReport* report, struct inputArray* input) {
 	//switchReport.rx = static_cast<uint8_t>(state.rx >> 8);
 	//switchReport.ry = static_cast<uint8_t>(state.ry >> 8);
 
-	report = &switchReport;
+	*report = &switchReport;
 	return sizeof(SwitchReport);
 }
 

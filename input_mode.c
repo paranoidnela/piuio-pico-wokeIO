@@ -6,11 +6,15 @@
 #include "input_mode.h"
 
 int get_input_mode() {
-    if (input_mode < 0)
-        input_mode = read_input_mode();
-    
-    if (input_mode >= INPUT_MODE_COUNT)
+    #if defined(ALWAYS_DEFAULT_INPUT_MODE)
         input_mode = DEFAULT_INPUT_MODE;
+    #else
+        if (input_mode < 0)
+            input_mode = read_input_mode();
+        
+        if (input_mode >= INPUT_MODE_COUNT)
+            input_mode = DEFAULT_INPUT_MODE;
+    #endif
 
     return input_mode;
 }
@@ -24,6 +28,7 @@ uint8_t read_input_mode() {
 }
 
 void write_input_mode(uint8_t value) {
+    #ifndef ALWAYS_DEFAULT_INPUT_MODE
     // at minimum we have to write FLASH_PAGE_SIZE bytes (256)
     // this sets the first value in the array and the rest should be 0
     uint8_t buf[FLASH_PAGE_SIZE] = {value};
@@ -37,4 +42,5 @@ void write_input_mode(uint8_t value) {
 
     // we can restore interrupts afterwards
     restore_interrupts(ints);
+    #endif
 };

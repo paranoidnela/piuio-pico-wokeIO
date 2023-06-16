@@ -6,7 +6,7 @@
 #ifndef _LXIO_REPORT_H
 #define _LXIO_REPORT_H
 
-typedef struct LXIOInputReport {
+typedef struct __attribute((packed, aligned(1))) LXIOInputReport {
     union{
         uint8_t data[16];
         struct {
@@ -112,7 +112,7 @@ typedef struct LXIOInputReport {
     };
 } LXIOInputReport_t;
 
-typedef struct LXIOOutputReport {
+typedef struct __attribute((packed, aligned(1))) LXIOOutputReport {
     union{
         uint8_t data[16];
         struct {
@@ -183,88 +183,88 @@ LXIOOutputReport_t lxioOutputReport = {
     .data = {0xFF}
 };
 
-uint16_t lxio_get_report(uint8_t* report, struct inputArray* input, struct inputArray* input_mux) {
+uint16_t lxio_get_report(uint8_t** report, struct inputArray* input, struct inputArray* input_mux) {
     memset(lxioInputReport.data, 0xFF, 16);
 
-    lxioInputReport.p1_dl_mux0 = !input_mux[0].p1_dl;
-    lxioInputReport.p1_ul_mux0 = !input_mux[0].p1_ul;
-    lxioInputReport.p1_cn_mux0 = !input_mux[0].p1_cn;
-    lxioInputReport.p1_ur_mux0 = !input_mux[0].p1_ur;
-    lxioInputReport.p1_dr_mux0 = !input_mux[0].p1_dr;
+    lxioInputReport.p1_dl_mux0 = input_mux[0].p1_dl;
+    lxioInputReport.p1_ul_mux0 = input_mux[0].p1_ul;
+    lxioInputReport.p1_cn_mux0 = input_mux[0].p1_cn;
+    lxioInputReport.p1_ur_mux0 = input_mux[0].p1_ur;
+    lxioInputReport.p1_dr_mux0 = input_mux[0].p1_dr;
 
-    lxioInputReport.p1_dl_mux1 = !input_mux[1].p1_dl;
-    lxioInputReport.p1_ul_mux1 = !input_mux[1].p1_ul;
-    lxioInputReport.p1_cn_mux1 = !input_mux[1].p1_cn;
-    lxioInputReport.p1_ur_mux1 = !input_mux[1].p1_ur;
-    lxioInputReport.p1_dr_mux1 = !input_mux[1].p1_dr;
+    lxioInputReport.p1_dl_mux1 = input_mux[1].p1_dl;
+    lxioInputReport.p1_ul_mux1 = input_mux[1].p1_ul;
+    lxioInputReport.p1_cn_mux1 = input_mux[1].p1_cn;
+    lxioInputReport.p1_ur_mux1 = input_mux[1].p1_ur;
+    lxioInputReport.p1_dr_mux1 = input_mux[1].p1_dr;
 
-    lxioInputReport.p1_dl_mux2 = !input_mux[2].p1_dl;
-    lxioInputReport.p1_ul_mux2 = !input_mux[2].p1_ul;
-    lxioInputReport.p1_cn_mux2 = !input_mux[2].p1_cn;
-    lxioInputReport.p1_ur_mux2 = !input_mux[2].p1_ur;
-    lxioInputReport.p1_dr_mux2 = !input_mux[2].p1_dr;
+    lxioInputReport.p1_dl_mux2 = input_mux[2].p1_dl;
+    lxioInputReport.p1_ul_mux2 = input_mux[2].p1_ul;
+    lxioInputReport.p1_cn_mux2 = input_mux[2].p1_cn;
+    lxioInputReport.p1_ur_mux2 = input_mux[2].p1_ur;
+    lxioInputReport.p1_dr_mux2 = input_mux[2].p1_dr;
 
-    lxioInputReport.p1_dl_mux3 = !input_mux[3].p1_dl;
-    lxioInputReport.p1_ul_mux3 = !input_mux[3].p1_ul;
-    lxioInputReport.p1_cn_mux3 = !input_mux[3].p1_cn;
-    lxioInputReport.p1_ur_mux3 = !input_mux[3].p1_ur;
-    lxioInputReport.p1_dr_mux3 = !input_mux[3].p1_dr;
+    lxioInputReport.p1_dl_mux3 = input_mux[3].p1_dl;
+    lxioInputReport.p1_ul_mux3 = input_mux[3].p1_ul;
+    lxioInputReport.p1_cn_mux3 = input_mux[3].p1_cn;
+    lxioInputReport.p1_ur_mux3 = input_mux[3].p1_ur;
+    lxioInputReport.p1_dr_mux3 = input_mux[3].p1_dr;
 
-    lxioInputReport.p2_dl_mux0 = !input_mux[0].p2_dl;
-    lxioInputReport.p2_ul_mux0 = !input_mux[0].p2_ul;
-    lxioInputReport.p2_cn_mux0 = !input_mux[0].p2_cn;
-    lxioInputReport.p2_ur_mux0 = !input_mux[0].p2_ur;
-    lxioInputReport.p2_dr_mux0 = !input_mux[0].p2_dr;
+    lxioInputReport.p2_dl_mux0 = input_mux[0].p2_dl;
+    lxioInputReport.p2_ul_mux0 = input_mux[0].p2_ul;
+    lxioInputReport.p2_cn_mux0 = input_mux[0].p2_cn;
+    lxioInputReport.p2_ur_mux0 = input_mux[0].p2_ur;
+    lxioInputReport.p2_dr_mux0 = input_mux[0].p2_dr;
 
-    lxioInputReport.p2_dl_mux1 = !input_mux[1].p2_dl;
-    lxioInputReport.p2_ul_mux1 = !input_mux[1].p2_ul;
-    lxioInputReport.p2_cn_mux1 = !input_mux[1].p2_cn;
-    lxioInputReport.p2_ur_mux1 = !input_mux[1].p2_ur;
-    lxioInputReport.p2_dr_mux1 = !input_mux[1].p2_dr;
+    lxioInputReport.p2_dl_mux1 = input_mux[1].p2_dl;
+    lxioInputReport.p2_ul_mux1 = input_mux[1].p2_ul;
+    lxioInputReport.p2_cn_mux1 = input_mux[1].p2_cn;
+    lxioInputReport.p2_ur_mux1 = input_mux[1].p2_ur;
+    lxioInputReport.p2_dr_mux1 = input_mux[1].p2_dr;
 
-    lxioInputReport.p2_dl_mux2 = !input_mux[2].p2_dl;
-    lxioInputReport.p2_ul_mux2 = !input_mux[2].p2_ul;
-    lxioInputReport.p2_cn_mux2 = !input_mux[2].p2_cn;
-    lxioInputReport.p2_ur_mux2 = !input_mux[2].p2_ur;
-    lxioInputReport.p2_dr_mux2 = !input_mux[2].p2_dr;
+    lxioInputReport.p2_dl_mux2 = input_mux[2].p2_dl;
+    lxioInputReport.p2_ul_mux2 = input_mux[2].p2_ul;
+    lxioInputReport.p2_cn_mux2 = input_mux[2].p2_cn;
+    lxioInputReport.p2_ur_mux2 = input_mux[2].p2_ur;
+    lxioInputReport.p2_dr_mux2 = input_mux[2].p2_dr;
 
-    lxioInputReport.p2_dl_mux3 = !input_mux[3].p2_dl;
-    lxioInputReport.p2_ul_mux3 = !input_mux[3].p2_ul;
-    lxioInputReport.p2_cn_mux3 = !input_mux[3].p2_cn;
-    lxioInputReport.p2_ur_mux3 = !input_mux[3].p2_ur;
-    lxioInputReport.p2_dr_mux3 = !input_mux[3].p2_dr;
+    lxioInputReport.p2_dl_mux3 = input_mux[3].p2_dl;
+    lxioInputReport.p2_ul_mux3 = input_mux[3].p2_ul;
+    lxioInputReport.p2_cn_mux3 = input_mux[3].p2_cn;
+    lxioInputReport.p2_ur_mux3 = input_mux[3].p2_ur;
+    lxioInputReport.p2_dr_mux3 = input_mux[3].p2_dr;
 
-    lxioInputReport.p1_coin = !input->p1_coin;
-    lxioInputReport.p2_coin = !input->p2_coin;
-    lxioInputReport.test1 = !input->test;
-    lxioInputReport.service1 = !input->service;
-    lxioInputReport.clear1 = !input->clear;
+    lxioInputReport.p1_coin = input->p1_coin;
+    lxioInputReport.p2_coin = input->p2_coin;
+    lxioInputReport.test1 = input->test;
+    lxioInputReport.service1 = input->service;
+    lxioInputReport.clear1 = input->clear;
 
-    report = lxioInputReport.data;
+    *report = lxioInputReport.data;
     return sizeof(LXIOInputReport_t);
 }
 
 void lxio_set_report(uint8_t const* buffer, uint16_t bufsize, struct lightsArray* lights) {
     bufsize = (bufsize > 16) ? 16 : bufsize;
-    memcpy(&lxioOutputReport, buffer, bufsize);
+    memcpy(lxioOutputReport.data, buffer, bufsize);
 
-    lights->p1_ul_light = !lxioOutputReport.p1_ul_light;
-    lights->p1_ur_light = !lxioOutputReport.p1_ur_light;
-    lights->p1_cn_light = !lxioOutputReport.p1_cn_light;
-    lights->p1_dl_light = !lxioOutputReport.p1_dl_light;
-    lights->p1_dr_light = !lxioOutputReport.p1_dr_light;
+    lights->p1_ul_light = lxioOutputReport.p1_ul_light;
+    lights->p1_ur_light = lxioOutputReport.p1_ur_light;
+    lights->p1_cn_light = lxioOutputReport.p1_cn_light;
+    lights->p1_dl_light = lxioOutputReport.p1_dl_light;
+    lights->p1_dr_light = lxioOutputReport.p1_dr_light;
 
-    lights->p2_ul_light = !lxioOutputReport.p2_ul_light;
-    lights->p2_ur_light = !lxioOutputReport.p2_ur_light;
-    lights->p2_cn_light = !lxioOutputReport.p2_cn_light;
-    lights->p2_dl_light = !lxioOutputReport.p2_dl_light;
-    lights->p2_dr_light = !lxioOutputReport.p2_dr_light;
+    lights->p2_ul_light = lxioOutputReport.p2_ul_light;
+    lights->p2_ur_light = lxioOutputReport.p2_ur_light;
+    lights->p2_cn_light = lxioOutputReport.p2_cn_light;
+    lights->p2_dl_light = lxioOutputReport.p2_dl_light;
+    lights->p2_dr_light = lxioOutputReport.p2_dr_light;
 
-    lights->l1_halo = !lxioOutputReport.l1_halo;
-    lights->l2_halo = !lxioOutputReport.l2_halo;
-    lights->r1_halo = !lxioOutputReport.r1_halo;
-    lights->r2_halo = !lxioOutputReport.r2_halo;
-    lights->bass_light = !lxioOutputReport.bass_light;
+    lights->l1_halo = lxioOutputReport.l1_halo;
+    lights->l2_halo = lxioOutputReport.l2_halo;
+    lights->r1_halo = lxioOutputReport.r1_halo;
+    lights->r2_halo = lxioOutputReport.r2_halo;
+    lights->bass_light = lxioOutputReport.bass_light;
 }
 
 #endif
