@@ -71,14 +71,14 @@ struct inputArray last_input = {
     .data = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
 };
 
-struct inputArray input_mux[5];
+struct inputArray input_mux[MUX_COUNT];
 
 // note that lights array are ACTIVE HIGH
 struct lightsArray lights = {
     .data = {0x00}
 };
 
-extern uint32_t mux4067_vals_db[5];
+extern uint32_t mux4067_vals_db[MUX_COUNT];
 
 void update_input_mux() {
     uint32_t buf_mux_global;
@@ -116,7 +116,7 @@ void update_input_mux() {
     input.service = !GETBIT(buf_mux_global, MUX4067_SERVICE);
     input.clear = !GETBIT(buf_mux_global, MUX4067_CLEAR);
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < MUX_COUNT; i++) {
         // logic is negative
         input_mux[i].p1_ul = !GETBIT(mux4067_vals_db[i], MUX4067_P1_UPLEFT);
         input_mux[i].p1_ur = !GETBIT(mux4067_vals_db[i], MUX4067_P1_UPRIGHT);
@@ -353,19 +353,19 @@ void send_report(void *report, uint16_t report_size) {
 uint16_t get_report(void** report) {
     switch (input_mode) {
 		case INPUT_MODE_GAMEPAD:
-			return hid_get_report(report, &input);
+			return hid_get_report((HIDReport**)report, &input);
 
         case INPUT_MODE_LXIO:
-			return lxio_get_report(report, &input, input_mux);
+			return lxio_get_report((uint8_t**)report, &input, input_mux);
 
         case INPUT_MODE_KEYBOARD:
-			return keyboard_get_report(report, &input);
+			return keyboard_get_report((KeyboardReport**)report, &input);
 
 		case INPUT_MODE_XINPUT:
-			return xinput_get_report(report, &input);
+			return xinput_get_report((XInputReport**)report, &input);
 
 		case INPUT_MODE_SWITCH:
-			return switch_get_report(report, &input);
+			return switch_get_report((SwitchReport**)report, &input);
 
 		default:
 			return 0;
@@ -373,7 +373,7 @@ uint16_t get_report(void** report) {
 }
 
 void hid_task() {
-    if (input_mode == INPUT_MODE_PIUIO)
+    if (select_mode || input_mode == INPUT_MODE_PIUIO)
         return;
 
     // USB FEATURES : Send/Get USB Features (including Player LEDs on X-Input)
@@ -469,6 +469,7 @@ const usbd_class_driver_t *usbd_app_driver_get_cb(uint8_t *driver_count)
 bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_request_t const * request) {
     // nothing to with DATA & ACK stage
     if (stage != CONTROL_STAGE_SETUP) return true;
+    if (select_mode) return false;
 
     if (input_mode == INPUT_MODE_PIUIO) {
         // Request 0xAE = IO Time

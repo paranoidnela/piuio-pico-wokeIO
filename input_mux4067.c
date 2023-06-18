@@ -7,13 +7,13 @@
 
 #include "bsp/board.h"
 
-uint32_t mux4067_vals[5] = {0};
-uint32_t mux4067_vals_db[5] = {0};  // debounced
+uint32_t mux4067_vals[MUX_COUNT] = {0};
+uint32_t mux4067_vals_db[MUX_COUNT] = {0};  // debounced
 
 // debouncing helper arrays
-uint32_t mux4067_vals_last[5] = {0};
-uint32_t press_ts[5][32] = {0};
-uint32_t release_ts[5][32] = {0};
+uint32_t mux4067_vals_last[MUX_COUNT] = {0};
+uint32_t press_ts[MUX_COUNT][32] = {0};
+uint32_t release_ts[MUX_COUNT][32] = {0};
 
 #define MUX_P1_INPUTS_SIZE 5
 const uint8_t mux_p1_inputs[] = {
@@ -134,9 +134,10 @@ uint32_t mux4067_merged(uint32_t* vals) {
 }
 
 void mux4067_debounce() {
+    #if defined(DEBOUNCING)
     uint32_t current_ts = board_millis();
     
-    for (int mux = 0; mux < 5; mux++) {
+    for (int mux = 0; mux < MUX_COUNT; mux++) {
         for (int i = 0; i < 32; i++) {
             uint32_t state = GETBIT(mux4067_vals[mux], i);
             
@@ -156,4 +157,7 @@ void mux4067_debounce() {
         }
         mux4067_vals_last[mux] = mux4067_vals[mux]; // store current button state for next iteration
     }
+    #else
+    memcpy(mux4067_vals_db, mux4067_vals, MUX_COUNT);
+    #endif
 }

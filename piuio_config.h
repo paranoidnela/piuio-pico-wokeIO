@@ -27,11 +27,8 @@
 #define DEBOUNCE_PRESS_TIME 15
 #define DEBOUNCE_RELEASE_TIME 15
 
-// enable pullup resistors for inputs
-// (only disable this if you know what you are doing!)
-#define PULLUP_IN
-
-#define MUX_GLOBAL 4
+// enable debouncing
+#define DEBOUNCING
 
 // always allow pad combo to enter bootloader; otherwise, it must be done in the service mode
 #define ALWAYS_BOOTLOADER false
@@ -44,12 +41,19 @@
 // (you will not be able to change the mode until reflashing!)
 //#define ALWAYS_DEFAULT_INPUT_MODE
 
-#define MAX_USB_POWER 0xFA  // (500mA)
-
 // threshold in ms to hold SERVICE button to enter mode select (settings menu)
 #define SETTINGS_THRESHOLD 2000
 
-// Uncomment these defines to enable WS2812 LED support.
+// enable pullup resistors for inputs
+// (only disable this if you know what you are doing!)
+#define PULLUP_IN
+
+#define MUX_GLOBAL 4
+#define MUX_COUNT 5
+
+#define MAX_USB_POWER 0xFA  // (500mA)
+
+// Uncomment these defines to enable WS2812 LED support. NOT WORKING WITH brokeIO
 //#define ENABLE_WS2812_SUPPORT
 //#define WS2812_IS_RGBW false
 //#define WS2812_PIN 22

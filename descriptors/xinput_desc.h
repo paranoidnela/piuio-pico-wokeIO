@@ -1,6 +1,7 @@
 /*
  * SPDX-License-Identifier: MIT
  * SPDX-FileCopyrightText: Copyright (c) 2021 Jason Skuby (mytechtoybox.com)
+ * https://github.com/sugoku/piuio-pico-brokeIO
  */
 
 #ifndef _XINPUT_DESC_H

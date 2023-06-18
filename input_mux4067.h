@@ -9,8 +9,8 @@
 #include "piuio_config.h"
 #include "piuio_structs.h"
 
-extern uint32_t mux4067_vals[5];  // 1 for each MUX state + global, we are caching them so we can poll faster even when the PC isn't asking
-extern uint32_t mux4067_vals_db[5];  // debounced
+extern uint32_t mux4067_vals[MUX_COUNT];  // 1 for each MUX state + global, we are caching them so we can poll faster even when the PC isn't asking
+extern uint32_t mux4067_vals_db[MUX_COUNT];  // debounced
 
 extern const uint8_t mux_p1_inputs[];
 extern const uint8_t mux_p2_inputs[];

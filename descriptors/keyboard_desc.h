@@ -1,3 +1,10 @@
+/******************************************************************************/
+/*  SPDX-License-Identifier: MIT                                              */
+/*  SPDX-FileCopyrightText: Copyright (c) 2023 sugoku                         */
+/*  SPDX-FileCopyrightText: Copyright (c) 2021 Jason Skuby (mytechtoybox.com) */
+/*  https://github.com/sugoku/piuio-pico-brokeIO                              */
+/******************************************************************************/
+
 #ifndef _KEYBOARD_DESC_H
 #define _KEYBOARD_DESC_H
 
