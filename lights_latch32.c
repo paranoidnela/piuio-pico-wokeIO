@@ -54,10 +54,12 @@ void lights_send(uint32_t* buf) {
         sspi_out_put(pio, sm, (uint8_t)((*buf & 0x000000FF)));
     #endif
 
-    busy_wait_us(5);
+    busy_wait_us(WAIT_LIGHTS_LATCH32);
 
     // tell latch to update values with what we just sent
     gpio_put(LATCH_RCLK_PIN, 1);
+
+    busy_wait_us(WAIT_LIGHTS_LATCH32);
 }
 
 void lights_enable() {

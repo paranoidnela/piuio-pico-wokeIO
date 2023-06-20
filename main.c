@@ -36,8 +36,8 @@
 int input_mode = -1;
 int input_mode_tmp = -1;
 
-bool select_mode = false;
-bool select_switched = false;
+bool config_mode = false;
+bool config_switched = false;
 
 // set pad lights based on whether an arrow is pressed or not, bypassing the host
 // automatically enabled for all modes besides PIUIO and LXIO
@@ -50,6 +50,10 @@ bool auto_mux = false;
 // merge all sensors for a panel, so that the host receives all sensor readings
 // ORed together (stepping on at least one sensor always triggers the arrow)
 bool merge_mux = false;
+
+// this mode is used to confirm the functionality of a brokeIO
+// it maps each input in the 4067 mux to its corresponding output on the latch
+bool factory_test_mode = false;
 
 // used for auto mux mode
 uint8_t current_mux = 0;
@@ -85,7 +89,7 @@ void update_input_mux() {
     uint32_t buf_mux_p1;
     uint32_t buf_mux_p2;
     
-    if (merge_mux || select_mode) {
+    if (merge_mux || config_mode) {
         uint32_t merged = mux4067_merged(mux4067_vals_db);
         buf_mux_global = merged;
         buf_mux_p1 = merged;
@@ -147,7 +151,7 @@ void input_task() {
 
     update_input_mux();
 
-    if (select_mode) {
+    if (config_mode) {
         if ((!input.p1_dl && last_input.p1_dl) || (!input.p2_dl && last_input.p2_dl)) {
             if (input_mode_tmp > 0)
                 input_mode_tmp--;
@@ -163,35 +167,35 @@ void input_task() {
     // also don't do this if test is also pressed down
     if (last_input.service && !input.service && input.test) {
         last_service_ts = current_ts;
-        select_switched = true;
+        config_switched = true;
     }
-    // if button held down long enough, enter or exit mode select
-    if (select_switched && !input.service && current_ts - last_service_ts > SETTINGS_THRESHOLD && input.test) {
-        if (!select_mode) {
+    // if button held down long enough, enter or exit config mode
+    if (config_switched && !input.service && current_ts - last_service_ts > SETTINGS_THRESHOLD && input.test) {
+        if (!config_mode) {
             input_mode_tmp = input_mode;
-            select_mode = true;
+            config_mode = true;
         } else {
-            select_mode = false;
+            config_mode = false;
             // save changes for mode to flash memory and reset device!
             write_input_mode(input_mode_tmp);
             // enable watchdog and enter infinite loop to reset
             watchdog_enable(1, 1);
             while(1);
         }
-        select_switched = false;
-        // use select_switched to make sure that when we enter select_mode
-        // we don't instantly exit it (requiring another button press to switch select_mode)
+        config_switched = false;
+        // use config_switched to make sure that when we enter config_mode
+        // we don't instantly exit it (requiring another button press to switch config_mode)
     }
 
     // enter usb bootloader mode (do not use in production!)
-    if ((select_mode || ALWAYS_BOOTLOADER) && !input.p2_ul && !input.p2_ur && !input.p2_dr) {
+    if ((config_mode || ALWAYS_BOOTLOADER) && !input.p2_ul && !input.p2_ur && !input.p2_dr) {
         reset_usb_boot(0, 0);
     }
 
     last_input = input;
 }
 
-void select_mode_led_update(uint32_t* buf) {
+void config_mode_led_update(uint32_t* buf) {
     uint32_t time = board_millis();
     uint8_t blink_count = (time / SERVICE_BLINK_INTERVAL) % (input_mode + 1);
     // blink for BLINK_LENGTH every BLINK_INTERVAL ms for input_mode times.
@@ -220,7 +224,7 @@ void lights_task() {
 
     uint32_t buf = 0;
 
-    if (select_mode) {
+    if (config_mode) {
         // force direct_lights behavior
         uint32_t in_buf = mux4067_merged(mux4067_vals_db);
         
@@ -240,8 +244,10 @@ void lights_task() {
 
         SETBIT(buf, LATCH_ALWAYS_ON);
 
-        select_mode_led_update(&buf);
+        config_mode_led_update(&buf);
         
+    } else if (factory_test_mode) {
+        buf = mux4067_merged(mux4067_vals_db);
     } else if (direct_lights) {  // technically it could be direct_lights && !merge_mux
         uint32_t in_buf = mux4067_merged(mux4067_vals_db);
 
@@ -306,7 +312,7 @@ void lights_task() {
     ws2812_unlock_mtx();
     #endif
 
-    if (auto_mux || select_mode) {
+    if (auto_mux || config_mode) {
         current_mux = (current_mux + 1) % 4;
         lights.p1_mux = current_mux;
         lights.p2_mux = current_mux;
@@ -373,7 +379,7 @@ uint16_t get_report(void** report) {
 }
 
 void hid_task() {
-    if (select_mode || input_mode == INPUT_MODE_PIUIO)
+    if (config_mode || input_mode == INPUT_MODE_PIUIO)
         return;
 
     // USB FEATURES : Send/Get USB Features (including Player LEDs on X-Input)
@@ -469,7 +475,7 @@ const usbd_class_driver_t *usbd_app_driver_get_cb(uint8_t *driver_count)
 bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_request_t const * request) {
     // nothing to with DATA & ACK stage
     if (stage != CONTROL_STAGE_SETUP) return true;
-    if (select_mode) return false;
+    if (config_mode) return false;
 
     if (input_mode == INPUT_MODE_PIUIO) {
         // Request 0xAE = IO Time
@@ -493,7 +499,7 @@ uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t
 	// TODO: Handle the correct report type, if required
 	(void)itf;
 
-    if (select_mode || input_mode == INPUT_MODE_PIUIO) return 0;
+    if (config_mode || input_mode == INPUT_MODE_PIUIO) return 0;
 
     void* report = NULL;
     uint16_t size = get_report(&report);
@@ -510,7 +516,7 @@ uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t
 void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize) {
     (void) instance;
 
-    if (!select_mode) {
+    if (!config_mode) {
         if (input_mode == INPUT_MODE_LXIO) {
             // if (report_type == HID_REPORT_TYPE_OUTPUT) {
             // do not consider the report type at all! tinyusb ignores it and sets it to HID_REPORT_TYPE_INVALID (0)

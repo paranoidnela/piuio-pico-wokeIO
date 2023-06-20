@@ -98,7 +98,7 @@ void mux4067_update(uint8_t mux_p1, uint8_t mux_p2) {
         gpio_put(MUX_S1_PIN, (i >> 1) & 1);
         gpio_put(MUX_S0_PIN, i & 1);
 
-        busy_wait_us(5);  // wait for selector to change
+        busy_wait_us(WAIT_INPUT_MUX4067);  // wait for selector to change
 
         // select mux based on if the input is related to P1 or P2 mux or neither
         uint8_t mux1 = MUX_GLOBAL;

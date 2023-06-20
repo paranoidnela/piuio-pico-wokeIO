@@ -83,6 +83,16 @@ uint16_t xinput_get_report(XInputReport** report, struct inputArray* input) {
 		| (!input->p2_cn ? XBOX_MASK_Y    : 0)
 	;
 
+	/*
+		use the following configuration for PIU Exceed on Xbox (thanks Crafty)
+		| (!input->p2_cn  ? XBOX_MASK_RB    : 0)
+		| (!input->p2_dr  ? XBOX_MASK_B  : 0)
+		| (!input->p2_dl  ? XBOX_MASK_A  : 0)
+		| (!input->p2_ur  ? XBOX_MASK_Y : 0)
+		| (!input->p2_ul  ? XBOX_MASK_X : 0)
+	*/
+	
+
 	//xinputReport.lx = static_cast<int16_t>(state.lx) + INT16_MIN;
 	//xinputReport.ly = static_cast<int16_t>(~state.ly) + INT16_MIN;
 	//xinputReport.rx = static_cast<int16_t>(state.rx) + INT16_MIN;
