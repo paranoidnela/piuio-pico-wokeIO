@@ -1,7 +1,8 @@
-/**********************************************************/
-/*  SPDX-License-Identifier: MIT                          */
-/*  https://github.com/sugoku/piuio-pico-brokeIO          */
-/**********************************************************/
+/*******************************************************************************************/
+/*  SPDX-License-Identifier: MIT                                                           */
+/*  SPDX-FileCopyrightText: Copyright (c) 2023 48productions, therathatter, dj505, sugoku  */
+/*  https://github.com/sugoku/piuio-pico-brokeIO                                           */
+/*******************************************************************************************/
 
 #include "bsp/board.h"
 #include "device/usbd.h"
@@ -22,6 +23,7 @@
 #include "reports/lxio_report.h"
 #include "reports/switch_report.h"
 #include "reports/xinput_report.h"
+#include "reports/gamecube_report.h"
 
 #include "xinput_driver.h"
 #include "device/usbd_pvt.h"
@@ -53,7 +55,7 @@ bool merge_mux = false;
 
 // this mode is used to confirm the functionality of a brokeIO
 // it maps each input in the 4067 mux to its corresponding output on the latch
-bool factory_test_mode = false;
+const bool factory_test_mode = false;
 
 // used for auto mux mode
 uint8_t current_mux = 0;
@@ -373,6 +375,9 @@ uint16_t get_report(void** report) {
 		case INPUT_MODE_SWITCH:
 			return switch_get_report((SwitchReport**)report, &input);
 
+        case INPUT_MODE_GAMECUBE:
+            return gamecube_get_report((GameCubeReport**)report, &input, &last_input);
+
 		default:
 			return 0;
 	}
@@ -424,6 +429,12 @@ void init() {
             break;
 
 		case INPUT_MODE_SWITCH:
+			direct_lights = true;
+            auto_mux = true;
+            merge_mux = true;
+            break;
+
+        case INPUT_MODE_GAMECUBE:
 			direct_lights = true;
             auto_mux = true;
             merge_mux = true;
@@ -522,6 +533,8 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
             // do not consider the report type at all! tinyusb ignores it and sets it to HID_REPORT_TYPE_INVALID (0)
             // also note that no report ID is specified in the LXIO's device descriptor
             lxio_set_report(buffer, bufsize, &lights);
-        } 
+        } else if (input_mode == INPUT_MODE_GAMECUBE) {
+            // rumble
+        }
     }
 }

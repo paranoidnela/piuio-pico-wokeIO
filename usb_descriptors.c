@@ -1,7 +1,10 @@
-/**********************************************************/
-/*  SPDX-License-Identifier: MIT                          */
-/*  https://github.com/sugoku/piuio-pico-brokeIO          */
-/**********************************************************/
+/*******************************************************************************************/
+/*  SPDX-License-Identifier: MIT                                                           */
+/*  SPDX-FileCopyrightText: Copyright (c) 2023 48productions, therathatter, dj505, sugoku  */
+/*  SPDX-FileCopyrightText: Copyright (c) 2021 Jason Skuby (mytechtoybox.com)              */
+/*  SPDX-FileCopyrightText: Copyright (c) 2019 Ha Thach (tinyusb.org)                      */
+/*  https://github.com/sugoku/piuio-pico-brokeIO                                           */
+/*******************************************************************************************/
 
 /*
  * SPDX-FileCopyrightText: Copyright (c) 2023 sugoku
@@ -19,6 +22,7 @@
 #include "descriptors/piuio_desc.h"
 #include "descriptors/switch_desc.h"
 #include "descriptors/xinput_desc.h"
+#include "descriptors/gamecube_desc.h"
 
 
 
@@ -60,6 +64,9 @@ uint8_t const *tud_descriptor_device_cb(void)
 		case INPUT_MODE_SWITCH:
 			return switch_device_descriptor;
 
+		case INPUT_MODE_GAMECUBE:
+			return gamecube_device_descriptor;
+
 		default:
 			return (uint8_t const*)&piuio_device_descriptor;
 	}
@@ -89,6 +96,9 @@ uint8_t const *tud_hid_descriptor_report_cb(uint8_t itf)
         case INPUT_MODE_SWITCH:
 			return switch_report_descriptor;
 
+		case INPUT_MODE_GAMECUBE:
+			return gamecube_report_descriptor;
+
 		default:
 			return hid_report_descriptor;
 	}
@@ -115,6 +125,9 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index)
 
 		case INPUT_MODE_SWITCH:
 			return switch_configuration_descriptor;
+
+		case INPUT_MODE_GAMECUBE:
+			return gamecube_configuration_descriptor;
 
 		default:
 			return piuio_configuration_descriptor;
@@ -168,6 +181,10 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid)
 
 		case INPUT_MODE_SWITCH:
 			string_desc_arr = (const char**)switch_string_descriptors;
+            break;
+
+		case INPUT_MODE_GAMECUBE:
+			string_desc_arr = (const char**)gamecube_string_descriptors;
             break;
 
 		default:

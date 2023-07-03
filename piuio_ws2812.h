@@ -1,7 +1,8 @@
-/**********************************************************/
-/*  SPDX-License-Identifier: MIT                          */
-/*  https://github.com/sugoku/piuio-pico-brokeIO          */
-/**********************************************************/
+/*******************************************************************************************/
+/*  SPDX-License-Identifier: MIT                                                           */
+/*  SPDX-FileCopyrightText: Copyright (c) 2023 48productions, therathatter, dj505, sugoku  */
+/*  https://github.com/sugoku/piuio-pico-brokeIO                                           */
+/*******************************************************************************************/
 
 #ifndef _PIUIO_WS2812_H
 #define _PIUIO_WS2812_H

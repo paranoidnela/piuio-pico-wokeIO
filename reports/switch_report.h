@@ -8,6 +8,8 @@
 #ifndef _SWITCH_REPORT_H
 #define _SWITCH_REPORT_H
 
+#include "piuio_config.h"
+
 #define SWITCH_ENDPOINT_SIZE 64
 
 // HAT report (4 bits)
@@ -74,6 +76,7 @@ static SwitchReport switchReport = {
 };
 
 uint16_t switch_get_report(SwitchReport** report, struct inputArray* input) {
+	#if !defined(SWITCH_JOYSTICK)
 	switchReport.hat = SWITCH_HAT_NOTHING;  
 	if (!input->p1_cn) switchReport.hat = SWITCH_HAT_UP;
 	if (!input->p1_cn && !input->p1_ur) switchReport.hat = SWITCH_HAT_UPRIGHT;  
@@ -83,6 +86,15 @@ uint16_t switch_get_report(SwitchReport** report, struct inputArray* input) {
 	if (!input->p1_dr && !input->p1_dl) switchReport.hat = SWITCH_HAT_DOWNLEFT; 
 	if (!input->p1_dl) switchReport.hat = SWITCH_HAT_LEFT;     
 	if (!input->p1_dl && !input->p1_cn) switchReport.hat = SWITCH_HAT_UPLEFT;
+	#else
+	switchReport.lx = SWITCH_JOYSTICK_MID;
+	switchReport.ly = SWITCH_JOYSTICK_MID;
+	// note that the Y direction is flipped
+	if (!input->p1_cn) switchReport.ly = SWITCH_JOYSTICK_MIN;
+	if (!input->p1_ur) switchReport.lx = SWITCH_JOYSTICK_MAX;
+	if (!input->p1_dr) switchReport.ly = SWITCH_JOYSTICK_MAX;     
+	if (!input->p1_dl) switchReport.lx = SWITCH_JOYSTICK_MIN;
+	#endif
 
 	switchReport.buttons = 0
 		| (!input->p2_dl ? SWITCH_MASK_B       : 0)

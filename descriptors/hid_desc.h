@@ -1,8 +1,8 @@
-/*
- * SPDX-License-Identifier: MIT
- * SPDX-FileCopyrightText: Copyright (c) 2021 Jason Skuby (mytechtoybox.com)
- * https://github.com/sugoku/piuio-pico-brokeIO
- */
+/******************************************************************************/
+/*  SPDX-License-Identifier: MIT                                              */
+/*  SPDX-FileCopyrightText: Copyright (c) 2021 Jason Skuby (mytechtoybox.com) */
+/*  https://github.com/sugoku/piuio-pico-brokeIO                              */
+/******************************************************************************/
 
 #ifndef _HID_DESC_H
 #define _HID_DESC_H

@@ -1,7 +1,8 @@
-/**********************************************************/
-/*  SPDX-License-Identifier: MIT                          */
-/*  https://github.com/sugoku/piuio-pico-brokeIO          */
-/**********************************************************/
+/*******************************************************************************************/
+/*  SPDX-License-Identifier: MIT                                                           */
+/*  SPDX-FileCopyrightText: Copyright (c) 2023 48productions, therathatter, dj505, sugoku  */
+/*  https://github.com/sugoku/piuio-pico-brokeIO                                           */
+/*******************************************************************************************/
 
 #ifndef _PIUIO_CONFIG_H
 #define _PIUIO_CONFIG_H
@@ -29,6 +30,9 @@
 
 // enable debouncing
 #define DEBOUNCING
+
+// use joystick instead of d-pad in Switch mode
+#define SWITCH_JOYSTICK
 
 // time in microseconds to wait between input/lights operations
 // by default, the brokeIO polls TOO FAST for the multiplexer in the pad PCBs to update,

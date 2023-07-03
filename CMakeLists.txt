@@ -51,7 +51,8 @@ pico_add_extra_outputs(piuio_pico)
 
 # Fix custom RP2040 boards with out-of-spec capacitance values for the crystal
 # oscillator by delaying startup slightly.
-# Thank you so much dj505!!!
+# Thank you so much dj505 for showing me this fix and
+# speedypotato/somewhatlurker for the solution!
 add_compile_definitions(
     PICO_XOSC_STARTUP_DELAY_MULTIPLIER=128
 )

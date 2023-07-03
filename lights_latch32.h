@@ -1,5 +1,6 @@
 /**********************************************************/
 /*  SPDX-License-Identifier: MIT                          */
+/*  SPDX-FileCopyrightText: Copyright (c) 2023 sugoku     */
 /*  https://github.com/sugoku/piuio-pico-brokeIO          */
 /**********************************************************/
 
