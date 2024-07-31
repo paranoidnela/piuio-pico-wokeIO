@@ -22,16 +22,16 @@ enum
 
 static const uint8_t piuio_string_language[]    = { 0x09, 0x04 };
 static const uint8_t piuio_string_manufacturer[] = "sugoku";
-static const uint8_t piuio_string_product[]     = "brokeIO (PIUIO)";
+static const uint8_t piuio_string_product[]     = "brokeIO RP2040 (PIUIO)";
 static const uint8_t piuio_string_version[]     = "727";
 static const uint8_t piuio_string_vendor_interface[] = "piuio-pico-brokeIO";
 
 static const uint8_t *piuio_string_descriptors[] =
 {
-	piuio_string_language,
-	piuio_string_manufacturer,
-	piuio_string_product,
-	piuio_string_version,
+    piuio_string_language,
+    piuio_string_manufacturer,
+    piuio_string_product,
+    piuio_string_version,
         piuio_string_vendor_interface
 };
 

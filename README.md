@@ -30,7 +30,6 @@ The last two steps can be done to upload new firmware to a brokeIO on most devic
 Using a hand controller with games connected to the official Pump it Up online service is considered cheating by Andamiro and may lead to actions being taken against your account.
 As such, this use case is not officially endorsed by piuio-pico.
 
-
 ## Credits
 
 This project is based off of the [tinyusb device USB examples](https://github.com/hathach/tinyusb/tree/master/examples/device) (specifically webusb_serial and hid_generic_input).
@@ -40,7 +39,6 @@ In addition, the st7789_lcd example from Raspberry Pi's [pico-examples](https://
 Protocol information from the [PIUIO_Arduino](https://github.com/ckdur/PIUIO_Arduino/) and [piuio_clone](https://github.com/racerxdl/piuio_clone/) repositories.
 A few short snippets of code were also derived from piuio_clone, which is under the GPLv3 license but express permission has been granted by racerxdl to relicense these snippets under MIT.
 Thank you to DinsFire64 for your reverse engineering work on the LXIO!
-
 
 ## License Notice
 

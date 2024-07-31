@@ -46,15 +46,23 @@
 #define ALWAYS_BOOTLOADER false
 
 // default input mode unless otherwise specified in the flash memory
-#define DEFAULT_INPUT_MODE INPUT_MODE_PIUIO
+#define DEFAULT_INPUT_MODE INPUT_MODE_SERIAL
 
 // uncomment to always use the default input mode on boot instead of what's in the flash memory
 // disables reading/writing to flash also
 // (you will not be able to change the mode until reflashing!)
-//#define ALWAYS_DEFAULT_INPUT_MODE
+// #define ALWAYS_DEFAULT_INPUT_MODE
 
 // threshold in ms to hold SERVICE button to enter mode select (settings menu)
 #define SETTINGS_THRESHOLD 2000
+
+#define LSB(n) (n & 255)
+#define MSB(n) ((n >> 8) & 255)
+
+#define VENDOR_ID               0x1D50
+#define PRODUCT_ID_GAMEPAD      0x6181
+#define PRODUCT_ID_KEYBOARD     0x6182
+#define PRODUCT_ID_OTHER        0x6183
 
 // enable pullup resistors for inputs
 // (only disable this if you know what you are doing!)
@@ -79,6 +87,67 @@ static uint32_t ws2812_color[5] = {
         urgb_u32(0, 255, 0)     // Lower right
 };
 
+// prototype boards from july to december 2023 have a different pinout (blue, forward facing molex)
+//#define IDC_FLIP_REV
+
+#if defined(IDC_FLIP_REV)
+// Modify these arrays to edit the pin out.
+// Map these according to your button pins.
+#define MUX4067_P1_UPLEFT 7
+#define MUX4067_P1_UPRIGHT 6
+#define MUX4067_P1_CENTER 5
+#define MUX4067_P1_DOWNLEFT 4
+#define MUX4067_P1_DOWNRIGHT 3
+
+#define MUX4067_P2_UPLEFT 20
+#define MUX4067_P2_UPRIGHT 19
+#define MUX4067_P2_CENTER 18
+#define MUX4067_P2_DOWNLEFT 17
+#define MUX4067_P2_DOWNRIGHT 16
+
+#define MUX4067_P1_COIN 10
+#define MUX4067_P2_COIN 29
+
+#define MUX4067_TEST 9
+#define MUX4067_SERVICE 14
+#define MUX4067_CLEAR 15
+
+#define MUX4067_JAMMA_Q 11
+#define MUX4067_JAMMA_17 28
+#define MUX4067_JAMMA_W 2
+#define MUX4067_JAMMA_X 1
+#define MUX4067_JAMMA_Y 0
+#define MUX4067_JAMMA_Z 8
+
+// Map these according to your LED pins.
+#define LATCH_P1L_UPLEFT 2
+#define LATCH_P1L_UPRIGHT 3
+#define LATCH_P1L_CENTER 4
+#define LATCH_P1L_DOWNLEFT 5
+#define LATCH_P1L_DOWNRIGHT 6
+
+#define LATCH_P2L_UPLEFT 18
+#define LATCH_P2L_UPRIGHT 19
+#define LATCH_P2L_CENTER 20
+#define LATCH_P2L_DOWNLEFT 21
+#define LATCH_P2L_DOWNRIGHT 22
+
+#define LATCH_P1_S0 0
+#define LATCH_P1_S1 1
+#define LATCH_P2_S0 16
+#define LATCH_P2_S1 17
+
+#define LATCH_CABL_MARQ1 25
+#define LATCH_CABL_MARQ2 23
+#define LATCH_CABL_MARQ3 24
+#define LATCH_CABL_MARQ4 26
+#define LATCH_CABL_NEON 10
+
+#define LATCH_COIN_COUNTER 28
+#define LATCH_ALWAYS_ON 27
+
+#define LATCH_JAMMA_LED 14
+#else
 // Modify these arrays to edit the pin out.
 // Map these according to your button pins.
 #define MUX4067_P1_UPLEFT 23
@@ -99,6 +168,13 @@ static uint32_t ws2812_color[5] = {
 #define MUX4067_TEST 30
 #define MUX4067_SERVICE 25
 #define MUX4067_CLEAR 24
+
+#define MUX4067_JAMMA_Q 28
+#define MUX4067_JAMMA_17 11
+#define MUX4067_JAMMA_W 18
+#define MUX4067_JAMMA_X 17
+#define MUX4067_JAMMA_Y 16
+#define MUX4067_JAMMA_Z 31
 
 // Map these according to your LED pins.
 #define LATCH_P1L_UPLEFT 29
@@ -129,6 +205,7 @@ static uint32_t ws2812_color[5] = {
 
 #define LATCH_JAMMA_LED 20
 
+#endif
 
 // other pins
 #define MUX_ENABLE_PIN 21
@@ -147,6 +224,11 @@ static uint32_t ws2812_color[5] = {
 #define SOFTWARE_SPI_DIN_PIN 9
 #define SOFTWARE_SPI_CLK_PIN 8
 
+#define UART_TX_PIN 16
+#define UART_RX_PIN 17
+#define UART_SHDN_PIN 14
+#define UART_RE_PIN 15
+
 
 // other defines
 // offset from XIP_BASE, let's make it 1MiB from the start
@@ -154,6 +236,12 @@ static uint32_t ws2812_color[5] = {
 // turn LED on for 200ms every 400ms 
 #define SERVICE_BLINK_LENGTH 200
 #define SERVICE_BLINK_INTERVAL 400
+
+
+// UART defines
+#define UART_HOST true
+#define UART_HOST_ID '0'
+#define UART_DEVICE_ID '1'
 
 
 // HID defines

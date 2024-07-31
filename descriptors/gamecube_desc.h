@@ -21,30 +21,30 @@ static const uint8_t gamecube_string_version[]      = "727";
 
 static const uint8_t *gamecube_string_descriptors[] =
 {
-	gamecube_string_language,
-	gamecube_string_manufacturer,
-	gamecube_string_product,
-	gamecube_string_version
+    gamecube_string_language,
+    gamecube_string_manufacturer,
+    gamecube_string_product,
+    gamecube_string_version
 };
 
 static const uint8_t gamecube_device_descriptor[] =
 {
-	0x12,        // bLength
-	0x01,        // bDescriptorType (Device)
-	0x00, 0x02,  // bcdUSB 2.00
-	0x00,        // bDeviceClass (Use class information in the Interface Descriptors)
-	0x00,        // bDeviceSubClass
-	0x00,        // bDeviceProtocol
-	0x40,        // bMaxPacketSize0 64
-	0x7E,
+    0x12,        // bLength
+    0x01,        // bDescriptorType (Device)
+    0x00, 0x02,  // bcdUSB 2.00
+    0x00,        // bDeviceClass (Use class information in the Interface Descriptors)
+    0x00,        // bDeviceSubClass
+    0x00,        // bDeviceProtocol
+    0x40,        // bMaxPacketSize0 64
+    0x7E,
     0x05,      // idVendor 0x057E
-	0x37,
+    0x37,
     0x03,      // idProduct 0x0337
-	0x00, 0x01,  // bcdDevice 2.00
-	0x01,        // iManufacturer (String Index)
-	0x02,        // iProduct (String Index)
-	0x03,        // iSerialNumber (String Index)
-	0x01,        // bNumConfigurations 1
+    0x00, 0x01,  // bcdDevice 2.00
+    0x01,        // iManufacturer (String Index)
+    0x02,        // iProduct (String Index)
+    0x03,        // iSerialNumber (String Index)
+    0x01,        // bNumConfigurations 1
 };
 
 static const uint8_t gamecube_report_descriptor[] =
@@ -155,57 +155,57 @@ static const uint8_t gamecube_report_descriptor[] =
 
 static const uint8_t gamecube_configuration_descriptor[] =
 {
-	0x09,        // bLength
-	0x02,        // bDescriptorType (Configuration)
-	0x29, 0x00,  // wTotalLength 41
-	0x01,        // bNumInterfaces 1
-	0x01,        // bConfigurationValue
-	0x00,        // iConfiguration (String Index)
-	0x80,        // bmAttributes
-	MAX_USB_POWER,        // bMaxPower 500mA
+    0x09,        // bLength
+    0x02,        // bDescriptorType (Configuration)
+    0x29, 0x00,  // wTotalLength 41
+    0x01,        // bNumInterfaces 1
+    0x01,        // bConfigurationValue
+    0x00,        // iConfiguration (String Index)
+    0x80,        // bmAttributes
+    MAX_USB_POWER,        // bMaxPower 500mA
 
-	0x09,        // bLength
-	0x04,        // bDescriptorType (Interface)
-	0x00,        // bInterfaceNumber 0
-	0x00,        // bAlternateSetting
-	0x02,        // bNumEndpoints 2
-	0x03,        // bInterfaceClass
-	0x00,        // bInterfaceSubClass
-	0x00,        // bInterfaceProtocol
-	0x00,        // iInterface (String Index)
+    0x09,        // bLength
+    0x04,        // bDescriptorType (Interface)
+    0x00,        // bInterfaceNumber 0
+    0x00,        // bAlternateSetting
+    0x02,        // bNumEndpoints 2
+    0x03,        // bInterfaceClass
+    0x00,        // bInterfaceSubClass
+    0x00,        // bInterfaceProtocol
+    0x00,        // iInterface (String Index)
 
-	0x09,        // bLength
-	0x21,        // bDescriptorType (HID)
-	0x11, 0x01,  // bcdHID 1.11
-	0x00,        // bCountryCode
-	0x01,        // bNumDescriptors
-	0x22,        // bDescriptorType[0] (HID)
-	sizeof(gamecube_report_descriptor), 0x00,  // wDescriptorLength[0] 86
+    0x09,        // bLength
+    0x21,        // bDescriptorType (HID)
+    0x11, 0x01,  // bcdHID 1.11
+    0x00,        // bCountryCode
+    0x01,        // bNumDescriptors
+    0x22,        // bDescriptorType[0] (HID)
+    sizeof(gamecube_report_descriptor), 0x00,  // wDescriptorLength[0] 86
 
-	0x07,        // bLength
-	0x05,        // bDescriptorType (Endpoint)
-	0x81,        // bEndpointAddress (IN/D2H)
-	0x03,        // bmAttributes (Interrupt)
-	0x40, 0x00,  // wMaxPacketSize 64
-	0x01,        // bInterval 1 (unit depends on device speed)
+    0x07,        // bLength
+    0x05,        // bDescriptorType (Endpoint)
+    0x81,        // bEndpointAddress (IN/D2H)
+    0x03,        // bmAttributes (Interrupt)
+    0x40, 0x00,  // wMaxPacketSize 64
+    0x01,        // bInterval 1 (unit depends on device speed)
 
-	0x07,        // bLength
-	0x05,        // bDescriptorType (Endpoint)
-	0x02,        // bEndpointAddress (OUT/H2D)
-	0x03,        // bmAttributes (Interrupt)
-	0x40, 0x00,  // wMaxPacketSize 64
-	0x01,        // bInterval 1 (unit depends on device speed)
+    0x07,        // bLength
+    0x05,        // bDescriptorType (Endpoint)
+    0x02,        // bEndpointAddress (OUT/H2D)
+    0x03,        // bmAttributes (Interrupt)
+    0x40, 0x00,  // wMaxPacketSize 64
+    0x01,        // bInterval 1 (unit depends on device speed)
 };
 
 static const uint8_t gamecube_hid_descriptor[] =
 {
-	0x09,        // bLength
-	0x21,        // bDescriptorType (HID)
-	0x11, 0x01,  // bcdHID 1.11
-	0x00,        // bCountryCode
-	0x01,        // bNumDescriptors
-	0x22,        // bDescriptorType[0] (HID)
-	sizeof(gamecube_report_descriptor), 0x00,  // wDescriptorLength[0] 86
+    0x09,        // bLength
+    0x21,        // bDescriptorType (HID)
+    0x11, 0x01,  // bcdHID 1.11
+    0x00,        // bCountryCode
+    0x01,        // bNumDescriptors
+    0x22,        // bDescriptorType[0] (HID)
+    sizeof(gamecube_report_descriptor), 0x00,  // wDescriptorLength[0] 86
 };
 
 #endif

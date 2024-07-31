@@ -4,16 +4,25 @@
 /*  https://github.com/sugoku/piuio-pico-brokeIO                                           */
 /*******************************************************************************************/
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "bsp/board.h"
 #include "device/usbd.h"
 #include "hardware/gpio.h"
 #include "hardware/clocks.h"
+#include "hardware/uart.h"
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
+#include "pico/multicore.h"
+
+#include "RS485_protocol.h"
 
 #include "piuio_structs.h"
 #include "piuio_config.h"
 #include "input_mode.h"
+
+#include "uart_structs.h"
 
 #include "input_mux4067.h"
 #include "lights_latch32.h"
@@ -24,6 +33,14 @@
 #include "reports/switch_report.h"
 #include "reports/xinput_report.h"
 #include "reports/gamecube_report.h"
+
+// please fix all of this CDC code
+enum
+{
+  ITF_NUM_CDC_0 = 0,
+  ITF_NUM_CDC_0_DATA,
+  ITF_NUM_TOTAL_SERIAL
+};
 
 #include "xinput_driver.h"
 #include "device/usbd_pvt.h"
@@ -57,8 +74,20 @@ bool merge_mux = false;
 // it maps each input in the 4067 mux to its corresponding output on the latch
 const bool factory_test_mode = false;
 
+// is JAMMA_Q toggled on or off
+bool q_toggle = false;
+
+bool last_q = false;
+
+bool jamma_w = false;
+bool jamma_x = false;
+bool jamma_y = false;
+bool jamma_z = false;
+
 // used for auto mux mode
 uint8_t current_mux = 0;
+
+uint32_t serial_lights_buf;
 
 uint32_t last_service_ts;
 uint32_t last_p1_cn_ts;
@@ -153,6 +182,19 @@ void input_task() {
 
     update_input_mux();
 
+    uint32_t merged = mux4067_merged(mux4067_vals_db);
+
+    // read extra unused I/O for supported modes
+    bool q = GETBIT(merged, MUX4067_JAMMA_17);
+    if (q && !last_q) {
+        q_toggle = !q_toggle;
+    }
+
+    jamma_w = GETBIT(merged, MUX4067_JAMMA_W);
+    jamma_x = GETBIT(merged, MUX4067_JAMMA_X);
+    jamma_y = GETBIT(merged, MUX4067_JAMMA_Y);
+    jamma_z = GETBIT(merged, MUX4067_JAMMA_Z);
+
     if (config_mode) {
         if ((!input.p1_dl && last_input.p1_dl) || (!input.p2_dl && last_input.p2_dl)) {
             if (input_mode_tmp > 0)
@@ -195,6 +237,7 @@ void input_task() {
     }
 
     last_input = input;
+    last_q = q;
 }
 
 void config_mode_led_update(uint32_t* buf) {
@@ -250,6 +293,8 @@ void lights_task() {
         
     } else if (factory_test_mode) {
         buf = mux4067_merged(mux4067_vals_db);
+    } else if (input_mode == INPUT_MODE_SERIAL) {
+        buf = serial_lights_buf;
     } else if (direct_lights) {  // technically it could be direct_lights && !merge_mux
         uint32_t in_buf = mux4067_merged(mux4067_vals_db);
 
@@ -309,6 +354,7 @@ void lights_task() {
     }
 
     lights_send(&buf);
+    
 
     #ifdef ENABLE_WS2812_SUPPORT
     ws2812_unlock_mtx();
@@ -322,37 +368,37 @@ void lights_task() {
 }
 
 void receive_report(uint8_t *buffer) {
-	if (input_mode == INPUT_MODE_XINPUT) {
-		receive_xinput_report();
-		memcpy(buffer, xinput_out_buffer, XINPUT_OUT_SIZE);
-	}
+    if (input_mode == INPUT_MODE_XINPUT) {
+        receive_xinput_report();
+        memcpy(buffer, xinput_out_buffer, XINPUT_OUT_SIZE);
+    }
 }
 
 void send_report(void *report, uint16_t report_size) {
-	static uint8_t previous_report[CFG_TUD_ENDPOINT0_SIZE] = { };
+    static uint8_t previous_report[CFG_TUD_ENDPOINT0_SIZE] = { };
 
     if (report_size == 0 || report == NULL)
         return;
 
-	if (tud_suspended())
-		tud_remote_wakeup();
+    if (tud_suspended())
+        tud_remote_wakeup();
 
-	if (memcmp(previous_report, report, report_size) != 0) {
-		bool sent = false;
-		switch (input_mode) {
-			case INPUT_MODE_XINPUT:
-				sent = send_xinput_report(report, report_size);
-				break;
+    if (memcmp(previous_report, report, report_size) != 0) {
+        bool sent = false;
+        switch (input_mode) {
+            case INPUT_MODE_XINPUT:
+                sent = send_xinput_report(report, report_size);
+                break;
 
-			default:
-				if (tud_hid_ready())
-		            sent = tud_hid_report(0, report, report_size);
-				break;
-		}
+            default:
+                if (tud_hid_ready())
+                    sent = tud_hid_report(0, report, report_size);
+                break;
+        }
 
-		if (sent)
-			memcpy(previous_report, report, report_size);
-	}
+        if (sent)
+            memcpy(previous_report, report, report_size);
+    }
 }
 
 // returns size, sets pointer to report pointer
@@ -360,32 +406,56 @@ void send_report(void *report, uint16_t report_size) {
 // and that this change persists outside this function
 uint16_t get_report(void** report) {
     switch (input_mode) {
-		case INPUT_MODE_GAMEPAD:
-			return hid_get_report((HIDReport**)report, &input);
+        case INPUT_MODE_GAMEPAD:
+            return hid_get_report((HIDReport**)report, &input);
 
         case INPUT_MODE_LXIO:
-			return lxio_get_report((uint8_t**)report, &input, input_mux);
+            return lxio_get_report((uint8_t**)report, &input, input_mux);
 
         case INPUT_MODE_KEYBOARD:
-			return keyboard_get_report((KeyboardReport**)report, &input);
+            return keyboard_get_report((KeyboardReport**)report, &input);
 
-		case INPUT_MODE_XINPUT:
-			return xinput_get_report((XInputReport**)report, &input);
+        case INPUT_MODE_XINPUT:
+            return xinput_get_report((XInputReport**)report, &input);
 
-		case INPUT_MODE_SWITCH:
-			return switch_get_report((SwitchReport**)report, &input);
+        case INPUT_MODE_SWITCH:
+            return switch_get_report((SwitchReport**)report, &input, q_toggle, jamma_w, jamma_x, jamma_y, jamma_z);
 
         case INPUT_MODE_GAMECUBE:
-            return gamecube_get_report((GameCubeReport**)report, &input, &last_input);
+            return gamecube_get_report((GameCubeReport**)report, &input, &last_input, q_toggle, jamma_w, jamma_x, jamma_y, jamma_z);
 
-		default:
-			return 0;
-	}
+        default:
+            return 0;
+    }
 }
 
 void hid_task() {
     if (config_mode || input_mode == INPUT_MODE_PIUIO)
         return;
+
+    // move to cdc_task
+    if (input_mode == INPUT_MODE_SERIAL) {
+        if (tud_cdc_n_available(ITF_NUM_CDC_0)) {
+            uint8_t buf[64] = {0};
+            uint32_t count = tud_cdc_n_read(ITF_NUM_CDC_0, buf, sizeof(buf));
+            
+            if (count > 0) {
+                int bit = atoi(buf);
+                SETORCLRBIT(serial_lights_buf, bit, !GETBIT(serial_lights_buf, bit));
+            }
+        }
+
+        uint32_t merged = mux4067_merged(mux4067_vals_db);
+        for (int i = 31; i >= 0; i--) {
+            tud_cdc_n_write_char(ITF_NUM_CDC_0, '0'+((merged >> i) & 1));
+            if (i % 8 == 0) {
+                tud_cdc_n_write_char(ITF_NUM_CDC_0, ',');
+            }
+        }
+        tud_cdc_n_write_char(ITF_NUM_CDC_0, '\n');
+        tud_cdc_n_write_flush(ITF_NUM_CDC_0);
+        return;
+    }
 
     // USB FEATURES : Send/Get USB Features (including Player LEDs on X-Input)
     void* report = NULL;
@@ -393,6 +463,162 @@ void hid_task() {
     send_report(report, size);
     receive_report(hid_rx_buf);
 }
+
+/*
+char recv_buf[128] = "bottom text\n";
+
+volatile host_message_t recv_host_msg = { .board_id='A', .s_loop_time="0123456789ABCDEF", .newline='\n'};
+volatile client_message_t recv_client_msg = {.board_id='B', .s_loop_time="0123456789ABCDEF", .payload="un", .newline='\n'};
+host_message_t last_host_msg;
+client_message_t last_client_msg;
+auto_init_mutex(uart_recv_mutex);
+
+void uart_task() {
+    if (input_mode == INPUT_MODE_SERIAL) {
+        uint32_t mutex_owner;
+        uint64_t start_ts = time_us_64();
+        // loop until UART recv buffer is not in use by core 1, or until we time out (100 microseconds)
+        while (mutex_try_enter(&uart_recv_mutex, &mutex_owner) && time_us_64() - start_ts < 100);
+
+        // exit if we timed out
+        if (time_us_64() - start_ts >= 100) {
+            tud_cdc_n_write(ITF_NUM_CDC_0, "mutex timeout\n", 15);
+            tud_cdc_n_write_flush(ITF_NUM_CDC_0);
+            return;
+        }
+
+        if (UART_HOST && memcmp(recv_client_msg.data, last_client_msg.data, sizeof(recv_client_msg.data))) {
+            tud_cdc_n_write(ITF_NUM_CDC_0, "start\n", 7);
+            tud_cdc_n_write(ITF_NUM_CDC_0, recv_client_msg.data, sizeof(recv_client_msg.data));
+            tud_cdc_n_write(ITF_NUM_CDC_0, "end\n", 5);
+            tud_cdc_n_write_flush(ITF_NUM_CDC_0);
+            memcpy(last_client_msg.data, recv_client_msg.data, sizeof(recv_client_msg.data));
+        } else if (!UART_HOST && memcmp(recv_host_msg.data, last_host_msg.data, sizeof(recv_host_msg.data))) {
+            tud_cdc_n_write(ITF_NUM_CDC_0, "start\n", 7);
+            tud_cdc_n_write(ITF_NUM_CDC_0, recv_host_msg.data, sizeof(recv_host_msg.data));
+            tud_cdc_n_write(ITF_NUM_CDC_0, "end\n", 5);
+            tud_cdc_n_write_flush(ITF_NUM_CDC_0);
+            memcpy(last_host_msg.data, recv_host_msg.data, sizeof(recv_host_msg.data));
+        }   
+
+        mutex_exit(&uart_recv_mutex);
+    }
+}
+
+void rs485_write_blocking(uart_inst_t *uart, const uint8_t *src, size_t len) {
+    gpio_put(UART_RE_PIN, 1);  // disable read while sending message over UART
+
+    // uart_write_blocking(uart, src, len);
+    sendMsg(uart, src, len);
+
+    // uint32_t mutex_owner;
+    // while (mutex_try_enter(&uart_recv_mutex, &mutex_owner));
+
+    // snprintf(recv_client_msg.payload, sizeof(recv_client_msg.payload), "wr");  // i wrote
+
+    // mutex_exit(&uart_recv_mutex);
+
+    // maybe add a delay?
+    // busy_wait_us(20);
+
+    gpio_put(UART_RE_PIN, 0);  // enable read
+}
+
+uint8_t rs485_read_blocking(uart_inst_t *uart, const uint8_t *dst, size_t len) {
+    //uart_read_blocking(uart, src, len);
+    return recvMsg(uart, dst, len, 500);
+}
+
+void uart_core1_task() {
+    static uint64_t last_ts = 0;
+    uint64_t ts = time_us_64();
+    uint32_t mutex_owner;
+
+    if (UART_HOST) {
+        host_message_t tx_message = { .board_id = UART_HOST_ID, .newline = '\n' };
+        snprintf(tx_message.s_loop_time, sizeof(tx_message.s_loop_time), "%016x", ts - last_ts);
+
+        last_ts = ts;
+
+        rs485_write_blocking(uart0, tx_message.data, sizeof(tx_message.data));
+        // sendMsg(tx_message.data, sizeof(tx_message.data));
+
+        // wait for device to send reply message
+        // uint64_t timeout_start_ts = time_us_64();
+        while (!uart_is_readable(uart0));
+
+        // if (time_us_64() - timeout_start_ts >= 100) {
+        //     while (mutex_try_enter(&uart_recv_mutex, &mutex_owner));
+
+        //     snprintf(recv_client_msg.payload, sizeof(recv_client_msg.payload), "to");  // timeout
+
+        //     mutex_exit(&uart_recv_mutex);
+        // } else {
+        while (mutex_try_enter(&uart_recv_mutex, &mutex_owner));
+
+        if (!rs485_read_blocking(uart0, recv_buf, sizeof(recv_client_msg.data))) {
+            return;  // message not received so don't try to copy it
+        }
+        memcpy(recv_client_msg.data, recv_buf, sizeof(recv_client_msg.data));
+
+        mutex_exit(&uart_recv_mutex);
+        
+    } else {
+        while (!uart_is_readable(uart0));
+
+        while (mutex_try_enter(&uart_recv_mutex, &mutex_owner));
+
+        if (!rs485_read_blocking(uart0, recv_buf, sizeof(recv_host_msg.data))) {
+            return;  // message not received so don't try to copy it
+        }
+        memcpy(recv_host_msg.data, recv_buf, sizeof(recv_host_msg.data));
+        uint8_t recv_board_id = recv_host_msg.board_id;
+    
+        // check if last message received from host (board ID 0)
+        if (recv_board_id == UART_HOST_ID) {
+            
+        } else {
+            recv_host_msg.data[1] = '0'+(recv_host_msg.data[0] >> 8);
+            recv_host_msg.data[2] = '0'+(recv_host_msg.data[0] % 16);
+        }
+
+        // then let's send back an acknowledgement message
+            client_message_t ret_message = { .board_id = UART_DEVICE_ID, .payload = "ok", .newline = '\n' };
+
+            snprintf(ret_message.s_loop_time, sizeof(ret_message.s_loop_time), "%016x", ts - last_ts);
+            last_ts = ts;
+
+            rs485_write_blocking(uart0, ret_message.data, sizeof(ret_message.data));
+
+        mutex_exit(&uart_recv_mutex);
+    }
+}
+
+void core1_entry() {
+    gpio_init(UART_SHDN_PIN);
+    gpio_init(UART_RE_PIN);
+    gpio_set_dir(UART_SHDN_PIN, true);  // set to output
+    gpio_set_dir(UART_RE_PIN, true);  // set to output
+
+    uart_init(uart0, 9600);
+    
+    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
+    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
+
+    uart_set_hw_flow(uart0, false, false);
+
+    // #define DATA_BITS 8
+    // #define STOP_BITS 1
+    // #define PARITY    UART_PARITY_NONE
+    // uart_set_format(uart0, DATA_BITS, STOP_BITS, PARITY);
+
+    gpio_put(UART_SHDN_PIN, 1);  // turn off shutdown by setting high
+
+    while (true) {
+        uart_core1_task();
+    }
+}
+*/
 
 void init() {
     get_input_mode();
@@ -404,46 +630,54 @@ void init() {
             merge_mux = false;
             break;
 
-		case INPUT_MODE_GAMEPAD:
-			direct_lights = true;
+        case INPUT_MODE_GAMEPAD:
+            direct_lights = true;
             auto_mux = true;
             merge_mux = true;
             break;
 
         case INPUT_MODE_LXIO:
-			direct_lights = false;
+            direct_lights = false;
             auto_mux = true;
             merge_mux = false;
             break;
 
         case INPUT_MODE_KEYBOARD:
-			direct_lights = true;
+            direct_lights = true;
             auto_mux = true;
             merge_mux = true;
             break;
 
-		case INPUT_MODE_XINPUT:
-			direct_lights = true;
+        case INPUT_MODE_XINPUT:
+            direct_lights = true;
             auto_mux = true;
             merge_mux = true;
             break;
 
-		case INPUT_MODE_SWITCH:
-			direct_lights = true;
+        case INPUT_MODE_SWITCH:
+            direct_lights = true;
             auto_mux = true;
             merge_mux = true;
             break;
 
         case INPUT_MODE_GAMECUBE:
-			direct_lights = true;
+            direct_lights = true;
             auto_mux = true;
             merge_mux = true;
             break;
-	}
+
+        case INPUT_MODE_SERIAL:
+            direct_lights = true;
+            auto_mux = true;
+            merge_mux = true;
+            break;
+    }
 }
 
 int main() {
     board_init();
+
+    // multicore_launch_core1(core1_entry);
 
     // Init WS2812B
     #ifdef ENABLE_WS2812_SUPPORT
@@ -465,6 +699,8 @@ int main() {
         input_task();
 
         hid_task();
+
+        // uart_task();
     }
 
     return 0;
@@ -507,8 +743,8 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
 
 uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t report_type, uint8_t *buffer, uint16_t reqlen)
 {
-	// TODO: Handle the correct report type, if required
-	(void)itf;
+    // TODO: Handle the correct report type, if required
+    (void)itf;
 
     if (config_mode || input_mode == INPUT_MODE_PIUIO) return 0;
 
@@ -518,9 +754,9 @@ uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t
     if (size == 0 || report == NULL)
         return 0;
         
-	memcpy(buffer, report, size);
+    memcpy(buffer, report, size);
 
-	return size;
+    return size;
 }
 
 // set_report needed here for HID lights and LXIO

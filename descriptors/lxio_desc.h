@@ -12,23 +12,23 @@
 #include "tusb.h"
 
 static const uint8_t lxio_string_language[]    = { 0x09, 0x04 };
-static const uint8_t lxio_string_manufacturer[] = "sugoku";
-static const uint8_t lxio_string_product[]     = "brokeIO (LXIO)";
-static const uint8_t lxio_string_version[]     = "727";
+static const uint8_t lxio_string_manufacturer[] = "ANDAMIRO";
+static const uint8_t lxio_string_product[]     = "PIU HID V1.00";
+// static const uint8_t lxio_string_version[]     = "727";
 
 static const uint8_t *lxio_string_descriptors[] =
 {
     lxio_string_language,
     lxio_string_manufacturer,
     lxio_string_product,
-    lxio_string_version
+    // lxio_string_version
 };
 
 tusb_desc_device_t const lxio_device_descriptor =
         {
                 .bLength            = sizeof(tusb_desc_device_t),
                 .bDescriptorType    = TUSB_DESC_DEVICE,
-                .bcdUSB             = 0x0200, // USB 2.0
+                .bcdUSB             = 0x0110, // USB 1.1, just following what ANDAMIRO says
 
                 // Use Interface Association Descriptor (IAD) for CDC
                 // As required by USB Specs IAD's subclass must be common class (2) and protocol must be IAD (1)
@@ -43,7 +43,7 @@ tusb_desc_device_t const lxio_device_descriptor =
 
                 .iManufacturer      = 0x01,
                 .iProduct           = 0x02,
-                .iSerialNumber      = 0x03,
+                .iSerialNumber      = 0x00,
 
                 .bNumConfigurations = 0x01
         };
@@ -73,7 +73,7 @@ static const uint8_t lxio_configuration_descriptor[] =
         // configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
     9,                               // bLength;
     2,                               // bDescriptorType;
-    0x29, 0x00,                      // wTotalLength 41
+    0x22, 0x00,                      // wTotalLength 0x22 (may need an extra 1 byte)
     1,                               // bNumInterfaces
     1,                               // bConfigurationValue
     0,                               // iConfiguration
@@ -84,7 +84,7 @@ static const uint8_t lxio_configuration_descriptor[] =
     4,                               // bDescriptorType
     0,                               // bInterfaceNumber
     0,                               // bAlternateSetting
-    2,                               // bNumEndpoints
+    1,                               // bNumEndpoints
     0x03,                            // bInterfaceClass (0x03 = HID)
     0x00,                            // bInterfaceSubClass (0x00 = No Boot)
     0x00,                            // bInterfaceProtocol (0x00 = No Protocol)

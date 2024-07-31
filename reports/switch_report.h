@@ -9,6 +9,9 @@
 #define _SWITCH_REPORT_H
 
 #include "piuio_config.h"
+#include "input_mux4067.h"
+
+extern uint32_t mux4067_vals_db[MUX_COUNT];
 
 #define SWITCH_ENDPOINT_SIZE 64
 
@@ -46,80 +49,112 @@
 
 typedef struct __attribute((packed, aligned(1)))
 {
-	uint16_t buttons;
-	uint8_t hat;
-	uint8_t lx;
-	uint8_t ly;
-	uint8_t rx;
-	uint8_t ry;
-	uint8_t vendor;
+    uint16_t buttons;
+    uint8_t hat;
+    uint8_t lx;
+    uint8_t ly;
+    uint8_t rx;
+    uint8_t ry;
+    uint8_t vendor;
 } SwitchReport;
 
 typedef struct
 {
-	uint16_t buttons;
-	uint8_t hat;
-	uint8_t lx;
-	uint8_t ly;
-	uint8_t rx;
-	uint8_t ry;
+    uint16_t buttons;
+    uint8_t hat;
+    uint8_t lx;
+    uint8_t ly;
+    uint8_t rx;
+    uint8_t ry;
 } SwitchOutReport;
 
 static SwitchReport switchReport = {
-	.buttons = 0,
-	.hat = SWITCH_HAT_NOTHING,
-	.lx = SWITCH_JOYSTICK_MID,
-	.ly = SWITCH_JOYSTICK_MID,
-	.rx = SWITCH_JOYSTICK_MID,
-	.ry = SWITCH_JOYSTICK_MID,
-	.vendor = 0,
+    .buttons = 0,
+    .hat = SWITCH_HAT_NOTHING,
+    .lx = SWITCH_JOYSTICK_MID,
+    .ly = SWITCH_JOYSTICK_MID,
+    .rx = SWITCH_JOYSTICK_MID,
+    .ry = SWITCH_JOYSTICK_MID,
+    .vendor = 0,
 };
 
-uint16_t switch_get_report(SwitchReport** report, struct inputArray* input) {
-	#if !defined(SWITCH_JOYSTICK)
-	switchReport.hat = SWITCH_HAT_NOTHING;  
-	if (!input->p1_cn) switchReport.hat = SWITCH_HAT_UP;
-	if (!input->p1_cn && !input->p1_ur) switchReport.hat = SWITCH_HAT_UPRIGHT;  
-	if (!input->p1_ur) switchReport.hat = SWITCH_HAT_RIGHT;    
-	if (!input->p1_ur && !input->p1_dr) switchReport.hat = SWITCH_HAT_DOWNRIGHT;
-	if (!input->p1_dr) switchReport.hat = SWITCH_HAT_DOWN;     
-	if (!input->p1_dr && !input->p1_dl) switchReport.hat = SWITCH_HAT_DOWNLEFT; 
-	if (!input->p1_dl) switchReport.hat = SWITCH_HAT_LEFT;     
-	if (!input->p1_dl && !input->p1_cn) switchReport.hat = SWITCH_HAT_UPLEFT;
-	#else
-	switchReport.lx = SWITCH_JOYSTICK_MID;
-	switchReport.ly = SWITCH_JOYSTICK_MID;
-	// note that the Y direction is flipped
-	if (!input->p1_cn) switchReport.ly = SWITCH_JOYSTICK_MIN;
-	if (!input->p1_ur) switchReport.lx = SWITCH_JOYSTICK_MAX;
-	if (!input->p1_dr) switchReport.ly = SWITCH_JOYSTICK_MAX;     
-	if (!input->p1_dl) switchReport.lx = SWITCH_JOYSTICK_MIN;
-	#endif
+uint16_t switch_get_report(SwitchReport** report, struct inputArray* input, bool joystick, bool jamma_w, bool jamma_x, bool jamma_y, bool jamma_z) {
+    // #if !defined(SWITCH_JOYSTICK)
+    // switchReport.hat = SWITCH_HAT_NOTHING;  
+    // if (!input->p1_cn) switchReport.hat = SWITCH_HAT_UP;
+    // if (!input->p1_cn && !input->p1_ur) switchReport.hat = SWITCH_HAT_UPRIGHT;  
+    // if (!input->p1_ur) switchReport.hat = SWITCH_HAT_RIGHT;    
+    // if (!input->p1_ur && !input->p1_dr) switchReport.hat = SWITCH_HAT_DOWNRIGHT;
+    // if (!input->p1_dr) switchReport.hat = SWITCH_HAT_DOWN;     
+    // if (!input->p1_dr && !input->p1_dl) switchReport.hat = SWITCH_HAT_DOWNLEFT; 
+    // if (!input->p1_dl) switchReport.hat = SWITCH_HAT_LEFT;     
+    // if (!input->p1_dl && !input->p1_cn) switchReport.hat = SWITCH_HAT_UPLEFT;
+    // #else
+    // switchReport.lx = SWITCH_JOYSTICK_MID;
+    // switchReport.ly = SWITCH_JOYSTICK_MID;
+    // // note that the Y direction is flipped
+    // if (!input->p1_cn) switchReport.ly = SWITCH_JOYSTICK_MIN;
+    // if (!input->p1_ur) switchReport.lx = SWITCH_JOYSTICK_MAX;
+    // if (!input->p1_dr) switchReport.ly = SWITCH_JOYSTICK_MAX;     
+    // if (!input->p1_dl) switchReport.lx = SWITCH_JOYSTICK_MIN;
+    // #endif
 
-	switchReport.buttons = 0
-		| (!input->p2_dl ? SWITCH_MASK_B       : 0)
-		| (!input->p2_dr ? SWITCH_MASK_A       : 0)
-		| (!input->p2_ul ? SWITCH_MASK_Y       : 0)
-		| (!input->p2_cn ? SWITCH_MASK_X       : 0)
-		| (!input->p1_ul ? SWITCH_MASK_L       : 0)
-		| (!input->p2_ur ? SWITCH_MASK_R       : 0)
-		// | (pressedL2() ? SWITCH_MASK_ZL      : 0)
-		// | (pressedR2() ? SWITCH_MASK_ZR      : 0)
-		| (!input->p1_coin ? SWITCH_MASK_MINUS   : 0)
-		| (!input->p2_coin ? SWITCH_MASK_PLUS    : 0)
-		// | (pressedL3() ? SWITCH_MASK_L3      : 0)
-		// | (pressedR3() ? SWITCH_MASK_R3      : 0)
-		| (!input->test ? SWITCH_MASK_HOME    : 0)
-		| (!input->service ? SWITCH_MASK_CAPTURE : 0)
-	;
+    switchReport.hat = SWITCH_HAT_NOTHING;
+    switchReport.lx = SWITCH_JOYSTICK_MID;
+    switchReport.ly = SWITCH_JOYSTICK_MID;
 
-	//switchReport.lx = static_cast<uint8_t>(state.lx >> 8);
-	//switchReport.ly = static_cast<uint8_t>(state.ly >> 8);
-	//switchReport.rx = static_cast<uint8_t>(state.rx >> 8);
-	//switchReport.ry = static_cast<uint8_t>(state.ry >> 8);
+    if (joystick) {
+        if (!input->p1_cn) switchReport.hat = SWITCH_HAT_UP;
+        if (!input->p1_cn && !input->p1_ur) switchReport.hat = SWITCH_HAT_UPRIGHT;  
+        if (!input->p1_ur) switchReport.hat = SWITCH_HAT_RIGHT;    
+        if (!input->p1_ur && !input->p1_dr) switchReport.hat = SWITCH_HAT_DOWNRIGHT;
+        if (!input->p1_dr) switchReport.hat = SWITCH_HAT_DOWN;     
+        if (!input->p1_dr && !input->p1_dl) switchReport.hat = SWITCH_HAT_DOWNLEFT; 
+        if (!input->p1_dl) switchReport.hat = SWITCH_HAT_LEFT;     
+        if (!input->p1_dl && !input->p1_cn) switchReport.hat = SWITCH_HAT_UPLEFT;
+    } else {
+        // note that the Y direction is flipped
+        if (!input->p1_cn) switchReport.ly = SWITCH_JOYSTICK_MIN;
+        if (!input->p1_ur) switchReport.lx = SWITCH_JOYSTICK_MAX;
+        if (!input->p1_dr) switchReport.ly = SWITCH_JOYSTICK_MAX;     
+        if (!input->p1_dl) switchReport.lx = SWITCH_JOYSTICK_MIN;
+    }
 
-	*report = &switchReport;
-	return sizeof(SwitchReport);
+    //uint8_t jamma_17 = GETBIT(in_buf, MUX4067_JAMMA_17);
+    // uint8_t jamma_w = GETBIT(in_buf, MUX4067_JAMMA_W);
+    // uint8_t jamma_x = GETBIT(in_buf, MUX4067_JAMMA_X);
+    // uint8_t jamma_y = GETBIT(in_buf, MUX4067_JAMMA_Y);
+    // uint8_t jamma_z = GETBIT(in_buf, MUX4067_JAMMA_Z);
+
+    switchReport.buttons = 0
+        | (!input->p2_dl ? SWITCH_MASK_B       : 0)
+        | (!input->p2_dr ? SWITCH_MASK_A       : 0)
+        | (!input->p2_ul ? SWITCH_MASK_Y       : 0)
+        | (!input->p2_cn ? SWITCH_MASK_X       : 0)
+        | (!input->p1_ul ? SWITCH_MASK_L       : 0)
+        | (!input->p2_ur ? SWITCH_MASK_R       : 0)
+        // | (pressedL2() ? SWITCH_MASK_ZL      : 0)
+        // | (pressedR2() ? SWITCH_MASK_ZR      : 0)
+        //| (jamma_17 ? SWITCH_MASK_ZR   : 0)
+        | (!input->p2_coin ? SWITCH_MASK_MINUS   : 0)
+        | (jamma_z ? SWITCH_MASK_MINUS   : 0)
+        | (!input->p1_coin ? SWITCH_MASK_PLUS    : 0)
+        | (jamma_y ? SWITCH_MASK_PLUS   : 0)
+        // | (pressedL3() ? SWITCH_MASK_L3      : 0)
+        // | (pressedR3() ? SWITCH_MASK_R3      : 0)
+        | (!input->test ? SWITCH_MASK_HOME    : 0)
+        | (jamma_w ? SWITCH_MASK_HOME   : 0)
+        | (!input->service ? SWITCH_MASK_CAPTURE : 0)
+        | (jamma_x ? SWITCH_MASK_CAPTURE   : 0)
+    ;
+
+    //switchReport.lx = static_cast<uint8_t>(state.lx >> 8);
+    //switchReport.ly = static_cast<uint8_t>(state.ly >> 8);
+    //switchReport.rx = static_cast<uint8_t>(state.rx >> 8);
+    //switchReport.ry = static_cast<uint8_t>(state.ry >> 8);
+
+    *report = &switchReport;
+    return sizeof(SwitchReport);
 }
 
 #endif
