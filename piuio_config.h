@@ -39,8 +39,9 @@
 // and for non-PIUIO modes this results in sensors getting mixed up or not read at all.
 // on my SXv2 pads, I was able to get away with 5 microsecond delays on inputs and lights
 // on a Japanese CX, I found that 10 microsecond delay on inputs + two 10 microsecond delays on lights was needed
-#define WAIT_INPUT_MUX4067 10
-#define WAIT_LIGHTS_LATCH32 10
+// this delay is now 20 microseconds after testing on SD pads, which required an even larger delay. thank you ChiefBigNut!
+#define WAIT_INPUT_MUX4067 20
+#define WAIT_LIGHTS_LATCH32 20
 
 // always allow pad combo to enter bootloader; otherwise, it must be done in the service mode
 #define ALWAYS_BOOTLOADER false

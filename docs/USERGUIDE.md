@@ -100,6 +100,10 @@ If nothing is happening, make sure you are on the correct mode for your system.
 
 ## FAQ/Notes
 
+**How do I reprogram the board?**
+Hold the BOOT button when plugging in the brokeIO or pressing the RESET button. Alternatively, enter the config menu with the service button and press P2 UL+UR+DR.
+Then the device should show up as a flash drive called RPI-BOOT. Finally, you can drop the UF2 firmware file in the flash drive and it will upload the code automatically. You do not need to plug in the Molex power cable to follow these steps, only the USB cable is needed.
+
 **Can I wire lights directly to this?**
 Yes, but it is not recommended to power anything other than LEDs, since it may take up a lot of current.
 The board is designed to accept ~500mA maximum for a single light output and ~1A for all lights at once. LEDs generally
