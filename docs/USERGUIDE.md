@@ -36,17 +36,19 @@ allowing you to theoretically bypass the JAMMA PCB for a DIY setup.
 
 ## Installation
 
-1. Ensure that you have a brokeIO circuit board, two IDC 34-pin cables, and USB-B cable. Also, ensure that you have a compatible system with:
+TL;DR if you have a PIUIO, it's a drop-in replacement, but use the ribbon cables included with the brokeIO!
+
+1. Ensure that you have a brokeIO circuit board, two IDC 34-pin ribbon cables, and USB-B cable. Also, ensure that you have a compatible system with:
    1. Motherboard with a free USB port or pin header, as well as a free PCIe slot (only required for mounting)
    2. Power supply with a molex power cable (or some way to supply 12V and 5V DC)
    3. JAMMA circuit board, or some way to connect the brokeIO pinouts to your machine
 2. If there is a PIUIO installed in your system, unplug the existing PIUIO circuit board from your motherboard and power supply. This includes the USB-B cable, two IDC cables connecting the PIUIO and JAMMA board, and molex cable.
 3. Insert the brokeIO in a free PCIe or PCI slot, preferably as close to the edge of the motherboard as possible; if you can't do this, you will need to find a secure place for it.
 *The order is not specific for steps 4-6:*
-4. Connect the USB-B (square-shaped) end of your USB cable to the brokeIO. Plug the other end into a USB port or the motherboard header, depending on what type cable you have.
+1. Connect the USB-B (square-shaped) end of your USB cable to the brokeIO. Plug the other end into a USB port or the motherboard header, depending on what type cable you have.
    1. If you have a USB-B to 5-pin motherboard cable, make sure when plugging into the motherboard that the black wire goes to the corner pin that does not have an adjacent pin on the next row.
-5. Connect the two IDC cables to the JAMMA. The cables are reversible, but there are notches on the IDC connectors so they can only be inserted in one way.
-6. From your power supply, connect molex connectors to your brokeIO and JAMMA PCBs.
+2. Connect the two IDC cables to the JAMMA. The cables are reversible, but there are notches on the IDC connectors so they can only be inserted in one way.
+3. From your power supply, connect molex connectors to your brokeIO and JAMMA PCBs.
 
 **NOTE:** For brokeIO, you must use the IDC cables included with the brokeIO, or equivalent cables. The cables included with
 Pump It Up are custom and are flipped vertically instead of horizontally, which is non-standard. Since you cannot
@@ -101,8 +103,8 @@ If nothing is happening, make sure you are on the correct mode for your system.
 ## FAQ/Notes
 
 **How do I reprogram the board?**
-Hold the BOOT button when plugging in the brokeIO or pressing the RESET button. Alternatively, enter the config menu with the service button and press P2 UL+UR+DR.
-Then the device should show up as a flash drive called RPI-BOOT. Finally, you can drop the UF2 firmware file in the flash drive and it will upload the code automatically. You do not need to plug in the Molex power cable to follow these steps, only the USB cable is needed.
+Hold the BOOT button when plugging in the brokeIO or pressing the RESET button. You do not need to plug in the Molex power cable to follow these steps, only the USB cable is needed. Alternatively, if you don't have physical access to the buttons and the brokeIO is plugged in, enter the config menu with the service button and press P2 UL+UR+DR.
+Then the device should show up as a flash drive called RPI-BOOT. Finally, you can drop the UF2 firmware file in the flash drive and it will upload the code automatically.
 
 **Can I wire lights directly to this?**
 Yes, but it is not recommended to power anything other than LEDs, since it may take up a lot of current.
