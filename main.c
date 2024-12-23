@@ -16,8 +16,6 @@
 #include "pico/bootrom.h"
 #include "pico/multicore.h"
 
-#include "RS485_protocol.h"
-
 #include "piuio_structs.h"
 #include "piuio_config.h"
 #include "input_mode.h"
@@ -105,6 +103,9 @@ struct inputArray input = {
 struct inputArray last_input = {
     .data = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
 };
+
+// use this array for PIUIO when all inputs should be off
+const uint8_t all_inputs_off[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 struct inputArray input_mux[MUX_COUNT];
 
@@ -203,7 +204,7 @@ void input_task() {
             if (input_mode_tmp < INPUT_MODE_COUNT - 1)
                 input_mode_tmp++;
         } else if ((!input.test && last_input.test) || (!input.test && last_input.test)) {
-            input_mode_tmp = (input_mode_tmp + 1) % input_mode_tmp;
+            input_mode_tmp = (input_mode_tmp + 1) % INPUT_MODE_COUNT;
         }
     }
 
@@ -231,7 +232,7 @@ void input_task() {
         // we don't instantly exit it (requiring another button press to switch config_mode)
     }
 
-    // enter usb bootloader mode (do not use in production!)
+    // enter usb bootloader mode (be careful using in production!)
     if ((config_mode || ALWAYS_BOOTLOADER) && !input.p2_ul && !input.p2_ur && !input.p2_dr) {
         reset_usb_boot(0, 0);
     }
@@ -464,162 +465,6 @@ void hid_task() {
     receive_report(hid_rx_buf);
 }
 
-/*
-char recv_buf[128] = "bottom text\n";
-
-volatile host_message_t recv_host_msg = { .board_id='A', .s_loop_time="0123456789ABCDEF", .newline='\n'};
-volatile client_message_t recv_client_msg = {.board_id='B', .s_loop_time="0123456789ABCDEF", .payload="un", .newline='\n'};
-host_message_t last_host_msg;
-client_message_t last_client_msg;
-auto_init_mutex(uart_recv_mutex);
-
-void uart_task() {
-    if (input_mode == INPUT_MODE_SERIAL) {
-        uint32_t mutex_owner;
-        uint64_t start_ts = time_us_64();
-        // loop until UART recv buffer is not in use by core 1, or until we time out (100 microseconds)
-        while (mutex_try_enter(&uart_recv_mutex, &mutex_owner) && time_us_64() - start_ts < 100);
-
-        // exit if we timed out
-        if (time_us_64() - start_ts >= 100) {
-            tud_cdc_n_write(ITF_NUM_CDC_0, "mutex timeout\n", 15);
-            tud_cdc_n_write_flush(ITF_NUM_CDC_0);
-            return;
-        }
-
-        if (UART_HOST && memcmp(recv_client_msg.data, last_client_msg.data, sizeof(recv_client_msg.data))) {
-            tud_cdc_n_write(ITF_NUM_CDC_0, "start\n", 7);
-            tud_cdc_n_write(ITF_NUM_CDC_0, recv_client_msg.data, sizeof(recv_client_msg.data));
-            tud_cdc_n_write(ITF_NUM_CDC_0, "end\n", 5);
-            tud_cdc_n_write_flush(ITF_NUM_CDC_0);
-            memcpy(last_client_msg.data, recv_client_msg.data, sizeof(recv_client_msg.data));
-        } else if (!UART_HOST && memcmp(recv_host_msg.data, last_host_msg.data, sizeof(recv_host_msg.data))) {
-            tud_cdc_n_write(ITF_NUM_CDC_0, "start\n", 7);
-            tud_cdc_n_write(ITF_NUM_CDC_0, recv_host_msg.data, sizeof(recv_host_msg.data));
-            tud_cdc_n_write(ITF_NUM_CDC_0, "end\n", 5);
-            tud_cdc_n_write_flush(ITF_NUM_CDC_0);
-            memcpy(last_host_msg.data, recv_host_msg.data, sizeof(recv_host_msg.data));
-        }   
-
-        mutex_exit(&uart_recv_mutex);
-    }
-}
-
-void rs485_write_blocking(uart_inst_t *uart, const uint8_t *src, size_t len) {
-    gpio_put(UART_RE_PIN, 1);  // disable read while sending message over UART
-
-    // uart_write_blocking(uart, src, len);
-    sendMsg(uart, src, len);
-
-    // uint32_t mutex_owner;
-    // while (mutex_try_enter(&uart_recv_mutex, &mutex_owner));
-
-    // snprintf(recv_client_msg.payload, sizeof(recv_client_msg.payload), "wr");  // i wrote
-
-    // mutex_exit(&uart_recv_mutex);
-
-    // maybe add a delay?
-    // busy_wait_us(20);
-
-    gpio_put(UART_RE_PIN, 0);  // enable read
-}
-
-uint8_t rs485_read_blocking(uart_inst_t *uart, const uint8_t *dst, size_t len) {
-    //uart_read_blocking(uart, src, len);
-    return recvMsg(uart, dst, len, 500);
-}
-
-void uart_core1_task() {
-    static uint64_t last_ts = 0;
-    uint64_t ts = time_us_64();
-    uint32_t mutex_owner;
-
-    if (UART_HOST) {
-        host_message_t tx_message = { .board_id = UART_HOST_ID, .newline = '\n' };
-        snprintf(tx_message.s_loop_time, sizeof(tx_message.s_loop_time), "%016x", ts - last_ts);
-
-        last_ts = ts;
-
-        rs485_write_blocking(uart0, tx_message.data, sizeof(tx_message.data));
-        // sendMsg(tx_message.data, sizeof(tx_message.data));
-
-        // wait for device to send reply message
-        // uint64_t timeout_start_ts = time_us_64();
-        while (!uart_is_readable(uart0));
-
-        // if (time_us_64() - timeout_start_ts >= 100) {
-        //     while (mutex_try_enter(&uart_recv_mutex, &mutex_owner));
-
-        //     snprintf(recv_client_msg.payload, sizeof(recv_client_msg.payload), "to");  // timeout
-
-        //     mutex_exit(&uart_recv_mutex);
-        // } else {
-        while (mutex_try_enter(&uart_recv_mutex, &mutex_owner));
-
-        if (!rs485_read_blocking(uart0, recv_buf, sizeof(recv_client_msg.data))) {
-            return;  // message not received so don't try to copy it
-        }
-        memcpy(recv_client_msg.data, recv_buf, sizeof(recv_client_msg.data));
-
-        mutex_exit(&uart_recv_mutex);
-        
-    } else {
-        while (!uart_is_readable(uart0));
-
-        while (mutex_try_enter(&uart_recv_mutex, &mutex_owner));
-
-        if (!rs485_read_blocking(uart0, recv_buf, sizeof(recv_host_msg.data))) {
-            return;  // message not received so don't try to copy it
-        }
-        memcpy(recv_host_msg.data, recv_buf, sizeof(recv_host_msg.data));
-        uint8_t recv_board_id = recv_host_msg.board_id;
-    
-        // check if last message received from host (board ID 0)
-        if (recv_board_id == UART_HOST_ID) {
-            
-        } else {
-            recv_host_msg.data[1] = '0'+(recv_host_msg.data[0] >> 8);
-            recv_host_msg.data[2] = '0'+(recv_host_msg.data[0] % 16);
-        }
-
-        // then let's send back an acknowledgement message
-            client_message_t ret_message = { .board_id = UART_DEVICE_ID, .payload = "ok", .newline = '\n' };
-
-            snprintf(ret_message.s_loop_time, sizeof(ret_message.s_loop_time), "%016x", ts - last_ts);
-            last_ts = ts;
-
-            rs485_write_blocking(uart0, ret_message.data, sizeof(ret_message.data));
-
-        mutex_exit(&uart_recv_mutex);
-    }
-}
-
-void core1_entry() {
-    gpio_init(UART_SHDN_PIN);
-    gpio_init(UART_RE_PIN);
-    gpio_set_dir(UART_SHDN_PIN, true);  // set to output
-    gpio_set_dir(UART_RE_PIN, true);  // set to output
-
-    uart_init(uart0, 9600);
-    
-    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
-    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
-
-    uart_set_hw_flow(uart0, false, false);
-
-    // #define DATA_BITS 8
-    // #define STOP_BITS 1
-    // #define PARITY    UART_PARITY_NONE
-    // uart_set_format(uart0, DATA_BITS, STOP_BITS, PARITY);
-
-    gpio_put(UART_SHDN_PIN, 1);  // turn off shutdown by setting high
-
-    while (true) {
-        uart_core1_task();
-    }
-}
-*/
-
 void init() {
     get_input_mode();
 
@@ -627,7 +472,7 @@ void init() {
         case INPUT_MODE_PIUIO:
             direct_lights = false;
             auto_mux = false;
-            merge_mux = false;
+            merge_mux = MERGE_MUX_PIUIO;
             break;
 
         case INPUT_MODE_GAMEPAD:
@@ -672,6 +517,18 @@ void init() {
             merge_mux = true;
             break;
     }
+
+    #ifdef BENCHMARK
+    gpio_init(BENCHMARK_PIN_1);
+    gpio_init(BENCHMARK_PIN_2);
+    gpio_init(BENCHMARK_PIN_3);
+    gpio_init(BENCHMARK_PIN_4);
+
+    gpio_set_dir(BENCHMARK_PIN_1, true);  // set benchmark pin as output
+    gpio_set_dir(BENCHMARK_PIN_2, true);  // set benchmark pin as output
+    gpio_set_dir(BENCHMARK_PIN_3, true);  // set benchmark pin as output
+    gpio_set_dir(BENCHMARK_PIN_4, true);  // set benchmark pin as output
+    #endif
 }
 
 int main() {
@@ -691,8 +548,20 @@ int main() {
 
     tusb_init();
 
+    #ifdef BENCHMARK
+    uint8_t loop_toggle = 0x00;
+    #endif
+
     // Main loop
     while (true) {
+
+        #ifdef BENCHMARK
+        // every loop, toggle the benchmark pin
+        // we can then monitor the time each loop takes using an oscilloscope
+        loop_toggle ^= 0x01;
+        gpio_put(BENCHMARK_PIN_1, loop_toggle);
+        #endif
+
         tud_task(); // tinyusb device task
 
         lights_task();  // update mux before reading in input
@@ -722,15 +591,38 @@ const usbd_class_driver_t *usbd_app_driver_get_cb(uint8_t *driver_count)
 bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_request_t const * request) {
     // nothing to with DATA & ACK stage
     if (stage != CONTROL_STAGE_SETUP) return true;
-    if (config_mode) return false;
 
     if (input_mode == INPUT_MODE_PIUIO) {
+
+        #ifdef BENCHMARK
+        static uint8_t loop_toggle_out = 0x00;
+        static uint8_t loop_toggle_in = 0x00;
+        #endif
+
         // Request 0xAE = IO Time
         if (request->bRequest == 0xAE) {
             switch (request->bmRequestType) {
                 case 0x40:
+
+                    #ifdef BENCHMARK
+                    loop_toggle_out ^= 0x01;
+                    gpio_put(BENCHMARK_PIN_2, loop_toggle_out);
+                    #endif
+
+                    if (config_mode)
+                        return false;
                     return tud_control_xfer(rhport, request, (void *)&lights.data, 8);
                 case 0xC0:
+
+                    #ifdef BENCHMARK
+                    loop_toggle_in ^= 0x01;
+                    gpio_put(BENCHMARK_PIN_3, loop_toggle_in);
+                    #endif
+
+                    // if in config mode, make sure that we turn all inputs off or inputs will get stuck!
+                    if (config_mode)
+                        return tud_control_xfer(rhport, request, (void *)all_inputs_off, 8);
+                    
                     return tud_control_xfer(rhport, request, (void *)&input.data, 8);
                 default:
                     return false;

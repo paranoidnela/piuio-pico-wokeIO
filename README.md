@@ -4,6 +4,11 @@ This is a Pump it Up IO board (PIUIO) clone based on the RP2040 microcontroller.
 
 This has been adapted for the RP2040 variant of the brokeIO, **B**edrock's **r**eplacement for **o**bsolete **K**orean hardwar**e IO**.
 
+If you are looking to set up your brokeIO, check out the [user guide](docs/USERGUIDE.md).
+
+You can find a demo video of the brokeIO in action [here](https://www.youtube.com/watch?v=F3n8xwk3XgE).
+I haven't had time to update the video, but it at least shows the novelty.
+
 ## brokeIO Features
 
 - Drop-in PIUIO replacement

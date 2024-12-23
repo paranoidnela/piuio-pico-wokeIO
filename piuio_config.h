@@ -13,18 +13,8 @@
 #include "usb_descriptors.h"
 #include "usb_hid_keys.h"
 
-// helper defines
-
-#define GETBIT(port,bit) ((port) & (1 << (bit)))     // get value at bit
-#define SETBIT(port,bit) ((port) |= (1 << (bit)))    // set bit to 1
-#define CLRBIT(port,bit) ((port) &= ~(1 << (bit)))   // set bit to 0 (clear bit)
-#define SETORCLRBIT(port,bit,val) if (val) { SETBIT(port,bit); } else { CLRBIT(port,bit); }  // if true, set bit to 1, if false, clear bit to 0
-
-// use software SPI to control latch for outputs
-// for some reason hardware SPI wasn't working right for me so I have it enabled
-#define SOFTWARE_LATCH
-
 // debounce time in milliseconds
+// adjust if you are getting misfires!
 #define DEBOUNCE_PRESS_TIME 15
 #define DEBOUNCE_RELEASE_TIME 15
 
@@ -34,12 +24,18 @@
 // use joystick instead of d-pad in Switch mode
 #define SWITCH_JOYSTICK
 
+// merge all sensor inputs, improving response time at the cost of not being able
+// to read individual sensors in the service menu.
+// in PIUIO mode, one poll reads one sensor per panel (10/40 sensors per poll).
+// official games only poll the PIUIO every 10ms, which is 100Hz best case but
+// 25Hz worst case the game is reading the wrong sensor.
+// setting this to true will improve sensor press polling to always be 100Hz,
+// but release polling will still be 25Hz worst case.
+#define MERGE_MUX_PIUIO false
+
 // time in microseconds to wait between input/lights operations
-// by default, the brokeIO polls TOO FAST for the multiplexer in the pad PCBs to update,
-// and for non-PIUIO modes this results in sensors getting mixed up or not read at all.
-// on my SXv2 pads, I was able to get away with 5 microsecond delays on inputs and lights
-// on a Japanese CX, I found that 10 microsecond delay on inputs + two 10 microsecond delays on lights was needed
-// this delay is now 20 microseconds after testing on SD pads, which required an even larger delay. thank you ChiefBigNut!
+// this accounts for variance in the brokeIO's multiplexer and latch chips
+// the delay is negligible, so you would not notice it
 #define WAIT_INPUT_MUX4067 20
 #define WAIT_LIGHTS_LATCH32 20
 
@@ -49,6 +45,13 @@
 // default input mode unless otherwise specified in the flash memory
 #define DEFAULT_INPUT_MODE INPUT_MODE_SERIAL
 
+// use software SPI to control latch for outputs
+// for some reason hardware SPI wasn't working right for me so I have it enabled
+#define SOFTWARE_LATCH
+
+// toggle pin on and off on the main loop for debugging purposes
+// #define BENCHMARK
+
 // uncomment to always use the default input mode on boot instead of what's in the flash memory
 // disables reading/writing to flash also
 // (you will not be able to change the mode until reflashing!)
@@ -57,9 +60,8 @@
 // threshold in ms to hold SERVICE button to enter mode select (settings menu)
 #define SETTINGS_THRESHOLD 2000
 
-#define LSB(n) (n & 255)
-#define MSB(n) ((n >> 8) & 255)
-
+// these PIDs are granted by Openmoko! they are not used for PIUIO/LXIO modes
+// https://github.com/openmoko/openmoko-usb-oui
 #define VENDOR_ID               0x1D50
 #define PRODUCT_ID_GAMEPAD      0x6181
 #define PRODUCT_ID_KEYBOARD     0x6182
@@ -80,6 +82,7 @@
 //#define WS2812_PIN 22
 
 // Modify these to edit the colors of the cabinet lamps.
+#ifdef ENABLE_WS2812_SUPPORT
 static uint32_t ws2812_color[5] = {
         urgb_u32(0, 255, 0),    // Lower left
         urgb_u32(255, 0, 0),    // Upper left
@@ -87,6 +90,18 @@ static uint32_t ws2812_color[5] = {
         urgb_u32(255, 0, 0),    // Upper right
         urgb_u32(0, 255, 0)     // Lower right
 };
+#endif
+
+// helper defines
+
+#define GETBIT(port,bit) ((port) & (1 << (bit)))     // get value at bit
+#define SETBIT(port,bit) ((port) |= (1 << (bit)))    // set bit to 1
+#define CLRBIT(port,bit) ((port) &= ~(1 << (bit)))   // set bit to 0 (clear bit)
+#define SETORCLRBIT(port,bit,val) if (val) { SETBIT(port,bit); } else { CLRBIT(port,bit); }  // if true, set bit to 1, if false, clear bit to 0
+
+#define LSB(n) (n & 255)
+#define MSB(n) ((n >> 8) & 255)
+
 
 // prototype boards from july to december 2023 have a different pinout (blue, forward facing molex)
 //#define IDC_FLIP_REV
@@ -229,6 +244,11 @@ static uint32_t ws2812_color[5] = {
 #define UART_RX_PIN 17
 #define UART_SHDN_PIN 14
 #define UART_RE_PIN 15
+
+#define BENCHMARK_PIN_1 4
+#define BENCHMARK_PIN_2 5
+#define BENCHMARK_PIN_3 6
+#define BENCHMARK_PIN_4 7
 
 
 // other defines
