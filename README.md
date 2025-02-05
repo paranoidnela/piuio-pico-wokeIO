@@ -17,6 +17,12 @@ I haven't had time to update the video, but it at least shows the novelty.
 - 1000Hz polling rate (in theory)
 - Updatable through USB, no separate tool required
 
+## Disclaimers
+
+I do not condone the use of brokeIO to enable playing pirated or unlicensed games, including simulators with songs you don't own or have licensed in some way, so do not expect me to provide support for these games.
+
+Also, using a hand controller with games connected to the official Pump it Up online service is considered cheating by Andamiro and may lead to actions being taken against your account.
+
 ## Firmware Setup
 
 Steps tested on WSL and thus should work on Linux also:
@@ -29,11 +35,6 @@ Steps tested on WSL and thus should work on Linux also:
 - The brokeIO will now show up as a removable drive in your OS (RPI-RP2). Copy the .UF2 file onto the drive, and the code will be uploaded!
 
 The last two steps can be done to upload new firmware to a brokeIO on most devices that can read and write to USB flash drives.
-
-## PIU Online Notice
-
-Using a hand controller with games connected to the official Pump it Up online service is considered cheating by Andamiro and may lead to actions being taken against your account.
-As such, this use case is not officially endorsed by piuio-pico.
 
 ## Credits
 
