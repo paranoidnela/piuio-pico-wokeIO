@@ -21,11 +21,11 @@
 #include "input_mode.h"
 
 #include "reports/hid_report.h"
-#include "reports/keyboard_report.h"
+//#include "reports/keyboard_report.h"
 #include "reports/lxio_report.h"
-#include "reports/switch_report.h"
-#include "reports/xinput_report.h"
-#include "reports/gamecube_report.h"
+//#include "reports/switch_report.h"
+//#include "reports/xinput_report.h"
+//#include "reports/gamecube_report.h"
 
 #include "xinput_driver.h"
 #include "device/usbd_pvt.h"
@@ -227,6 +227,7 @@ uint16_t get_report(void** report) {
         case INPUT_MODE_LXIO: 
             return lxio_get_report((uint8_t**)report, &input, input_mux);
 
+        /*
         case INPUT_MODE_KEYBOARD:
             return keyboard_get_report((KeyboardReport**)report, &input);
 
@@ -238,6 +239,7 @@ uint16_t get_report(void** report) {
 
         case INPUT_MODE_GAMECUBE:
             return gamecube_get_report((GameCubeReport**)report, &input, &last_input, q_toggle, jamma_w, jamma_x, jamma_y, jamma_z);
+        */
 
         default:
             return 0;

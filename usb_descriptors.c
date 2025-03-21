@@ -17,12 +17,12 @@
 #include "input_mode.h"
 
 #include "descriptors/hid_desc.h"
-#include "descriptors/keyboard_desc.h"
+//#include "descriptors/keyboard_desc.h"
 #include "descriptors/lxio_desc.h"
 #include "descriptors/piuio_desc.h"
-#include "descriptors/switch_desc.h"
-#include "descriptors/xinput_desc.h"
-#include "descriptors/gamecube_desc.h"
+//#include "descriptors/switch_desc.h"
+//#include "descriptors/xinput_desc.h"
+//#include "descriptors/gamecube_desc.h"
 //#include "descriptors/serial_desc.h"
 
 
@@ -55,6 +55,7 @@ uint8_t const *tud_descriptor_device_cb(void)
         case INPUT_MODE_LXIO:
             return (uint8_t const*)&lxio_device_descriptor;
 
+        /*
         case INPUT_MODE_KEYBOARD:
             return keyboard_device_descriptor;
 
@@ -69,6 +70,7 @@ uint8_t const *tud_descriptor_device_cb(void)
 
 		//case INPUT_MODE_SERIAL:
         //    return (uint8_t const*)&serial_device_descriptor;
+        */
 
         default:
             return (uint8_t const*)&piuio_device_descriptor;
@@ -93,6 +95,7 @@ uint8_t const *tud_hid_descriptor_report_cb(uint8_t itf)
         case INPUT_MODE_LXIO:
             return lxio_report_descriptor;
 
+        /*
         case INPUT_MODE_KEYBOARD:
             return keyboard_report_descriptor;
 
@@ -102,6 +105,7 @@ uint8_t const *tud_hid_descriptor_report_cb(uint8_t itf)
         case INPUT_MODE_GAMECUBE:
             return gamecube_report_descriptor;
 
+        */
         default:
             return hid_report_descriptor;
     }
@@ -120,6 +124,7 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index)
         case INPUT_MODE_LXIO:
             return lxio_configuration_descriptor;
 
+        /*
         case INPUT_MODE_KEYBOARD:
             return keyboard_configuration_descriptor;
 
@@ -134,7 +139,7 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index)
 
 		//case INPUT_MODE_SERIAL:
         //    return serial_configuration_descriptor;
-
+        */
         default:
             return piuio_configuration_descriptor;
     }
@@ -176,7 +181,8 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid)
         case INPUT_MODE_LXIO:
             string_desc_arr = (const char**)lxio_string_descriptors;
             break;
-
+            
+        /*
         case INPUT_MODE_KEYBOARD:
             string_desc_arr = (const char**)keyboard_string_descriptors;
             break;
@@ -196,6 +202,7 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid)
 		//case INPUT_MODE_SERIAL:
         //    string_desc_arr = (const char**)serial_string_descriptors;
         //    break;
+        */
 
         default:
             string_desc_arr = (const char**)piuio_string_descriptors;
