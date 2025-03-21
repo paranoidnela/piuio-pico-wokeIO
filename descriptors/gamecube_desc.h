@@ -15,8 +15,8 @@
 #define GAMECUBE_ENDPOINT_SIZE 64
 
 static const uint8_t gamecube_string_language[]     = { 0x09, 0x04 };
-static const uint8_t gamecube_string_manufacturer[] = "sugoku";
-static const uint8_t gamecube_string_product[]      = "brokeIO (GameCube)";
+static const uint8_t gamecube_string_manufacturer[] = "nela";
+static const uint8_t gamecube_string_product[]      = "wokeIO (GameCube)";
 static const uint8_t gamecube_string_version[]      = "727";
 
 static const uint8_t *gamecube_string_descriptors[] =

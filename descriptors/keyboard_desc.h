@@ -15,8 +15,8 @@
 #define KEY_COUNT 104
 
 static const uint8_t keyboard_string_language[]    = { 0x09, 0x04 };
-static const uint8_t keyboard_string_manufacturer[] = "sugoku";
-static const uint8_t keyboard_string_product[]     = "brokeIO (Keyboard)";
+static const uint8_t keyboard_string_manufacturer[] = "nela";
+static const uint8_t keyboard_string_product[]     = "wokeIO (Keyboard)";
 static const uint8_t keyboard_string_version[]     = "727";
 
 static const uint8_t *keyboard_string_descriptors[] =

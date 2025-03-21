@@ -9,9 +9,9 @@
 #ifndef _GAMECUBE_REPORT_H
 #define _GAMECUBE_REPORT_H
 
-#include "input_mux4067.h"
+//#include "input_mux4067.h"
 
-extern uint32_t mux4067_vals_db[MUX_COUNT];
+//extern uint32_t mux4067_vals_db[MUX_COUNT];
 
 #define GAMECUBE_CONTROLLER_ENABLED 0x14 // NORMAL, POWERED
 //#define GAMECUBE_CONTROLLER_ENABLED 0x10 // NORMAL (0x22=WAVEBIRD COMMUNICATING)

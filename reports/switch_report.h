@@ -9,9 +9,9 @@
 #define _SWITCH_REPORT_H
 
 #include "piuio_config.h"
-#include "input_mux4067.h"
+//#include "input_mux4067.h"
 
-extern uint32_t mux4067_vals_db[MUX_COUNT];
+//extern uint32_t mux4067_vals_db[MUX_COUNT];
 
 #define SWITCH_ENDPOINT_SIZE 64
 

@@ -1,27 +1,33 @@
-# piuio-pico (brokeIO edition)
+# piuio-pico (wokeIO edition)
 
 This is a Pump it Up IO board (PIUIO) clone based on the RP2040 microcontroller.
 
-This has been adapted for the RP2040 variant of the brokeIO, **B**edrock's **r**eplacement for **o**bsolete **K**orean hardwar**e IO**.
+This has been adapted from the RP2040 variant of the brokeIO, **B**edrock's **r**eplacement for **o**bsolete **K**orean hardwar**e IO** to create a replacement controller for third party mats effectively creating a affordable path into PIU cab ownership. 
 
-If you are looking to set up your brokeIO, check out the [user guide](docs/USERGUIDE.md).
+wokeIO stands for **W**orse (than) **o**bsolete **K**orean hardwar**e IO**.  
 
-You can find a demo video of the brokeIO in action [here](https://www.youtube.com/watch?v=F3n8xwk3XgE).
-I haven't had time to update the video, but it at least shows the novelty.
+If you are looking to set up your wokeIO, check out the [user guide](docs/USERGUIDE.md).
 
-## brokeIO Features
+<!-- 
+TODO make a video on this, I'm too lazy
+You can find a demo video of the wokeIO in action [here](https://www.youtube.com/watch?v=dQw4w9WgXcQ).
+!-->
 
-- Drop-in PIUIO replacement
+## wokeIO Features
+
+- Replacement controller board for PIU soft and hard pads
 - Multiple USB modes: PIUIO, Gamepad (DInput), LXIO, Keyboard, XInput, Nintendo Switch
+<!-- 
+	yeah no we are too lazy for that
 - Built-in debouncing
+!-->
 - 1000Hz polling rate (in theory)
 - Updatable through USB, no separate tool required
+- Simplified version available in `simple` branch with only PIUIO, LXIO and Gamepad mode for easier blind switching
 
 ## Disclaimers
 
-I do not condone the use of brokeIO to enable playing pirated or unlicensed games, including simulators with songs you don't own or have licensed in some way, so do not expect me to provide support for these games.
-
-Also, using a hand controller with games connected to the official Pump it Up online service is considered cheating by Andamiro and may lead to actions being taken against your account.
+Also, using a hand controller with games connected to the official Pump it Up online service is considered cheating by Andamiro and may lead to actions being taken against your account, this may extend to modified pads, use at your own risk.
 
 ## Firmware Setup
 
@@ -36,6 +42,15 @@ Steps tested on WSL and thus should work on Linux also:
 
 The last two steps can be done to upload new firmware to a brokeIO on most devices that can read and write to USB flash drives.
 
+I got it to work on macos installing `cmake` and `arm-none-eabi-gcc` with macports and then  
+`git clone https://github.com/paranoidnela/piuio-pico-wokeIO`  
+`cd piuio-pico-wokeIO`  
+`mkdir build`  
+`cd build`
+`cmake ..`
+`make`
+built binary will be in the build directory with filename `piuio_pico.uf2`, you can paste this in your RPI-RP2 and it should work
+
 ## Credits
 
 This project is based off of the [tinyusb device USB examples](https://github.com/hathach/tinyusb/tree/master/examples/device) (specifically webusb_serial and hid_generic_input).
@@ -45,7 +60,8 @@ In addition, the st7789_lcd example from Raspberry Pi's [pico-examples](https://
 Protocol information from the [PIUIO_Arduino](https://github.com/ckdur/PIUIO_Arduino/) and [piuio_clone](https://github.com/racerxdl/piuio_clone/) repositories.
 A few short snippets of code were also derived from piuio_clone, which is under the GPLv3 license but express permission has been granted by racerxdl to relicense these snippets under MIT.
 Thank you to DinsFire64 for your reverse engineering work on the LXIO!
+Thank you to sugoku for writing the brokeIO code to allow for mode switching
 
 ## License Notice
 
-All code is licensed under the MIT License unless otherwise indicated, such as the .pio files, which are under the BSD-3 license. `usb_hid_keys.h` is under public domain.
+All code is licensed under the MIT License unless otherwise indicated, `usb_hid_keys.h` is under public domain.

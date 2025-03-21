@@ -21,8 +21,8 @@ enum
 #define CONFIG_TOTAL_LEN    (TUD_CONFIG_DESC_LEN + CFG_TUD_CDC * TUD_CDC_DESC_LEN)
 
 static const uint8_t serial_string_language[]    = { 0x09, 0x04 };
-static const uint8_t serial_string_manufacturer[] = "sugoku";
-static const uint8_t serial_string_product[]     = "brokeIO RP2040 (Serial)";
+static const uint8_t serial_string_manufacturer[] = "nela";
+static const uint8_t serial_string_product[]     = "wokeIO RP2040 (Serial)";
 static const uint8_t serial_string_version[]     = "727";
 
 static const uint8_t *serial_string_descriptors[] =

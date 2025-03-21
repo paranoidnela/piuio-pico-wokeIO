@@ -21,10 +21,10 @@ enum
 #define EPNUM_VENDOR_OUT 0x01
 
 static const uint8_t piuio_string_language[]    = { 0x09, 0x04 };
-static const uint8_t piuio_string_manufacturer[] = "sugoku";
-static const uint8_t piuio_string_product[]     = "brokeIO RP2040 (PIUIO)";
+static const uint8_t piuio_string_manufacturer[] = "nela";
+static const uint8_t piuio_string_product[]     = "wokeIO RP2040 (PIUIO)";
 static const uint8_t piuio_string_version[]     = "727";
-static const uint8_t piuio_string_vendor_interface[] = "piuio-pico-brokeIO";
+static const uint8_t piuio_string_vendor_interface[] = "piuio-pico-wokeIO";
 
 static const uint8_t *piuio_string_descriptors[] =
 {

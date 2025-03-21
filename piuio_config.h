@@ -6,7 +6,6 @@
 
 #ifndef _PIUIO_CONFIG_H
 #define _PIUIO_CONFIG_H
-#include "piuio_ws2812_helpers.h"
 
 #include "hardware/timer.h"
 
@@ -15,6 +14,7 @@
 
 // debounce time in milliseconds
 // adjust if you are getting misfires!
+// does nothing rn, debounce needs to be implemented
 #define DEBOUNCE_PRESS_TIME 15
 #define DEBOUNCE_RELEASE_TIME 15
 
@@ -36,18 +36,18 @@
 // time in microseconds to wait between input/lights operations
 // this accounts for variance in the brokeIO's multiplexer and latch chips
 // the delay is negligible, so you would not notice it
-#define WAIT_INPUT_MUX4067 20
-#define WAIT_LIGHTS_LATCH32 20
+//#define WAIT_INPUT_MUX4067 20
+//#define WAIT_LIGHTS_LATCH32 20
 
 // always allow pad combo to enter bootloader; otherwise, it must be done in the service mode
 #define ALWAYS_BOOTLOADER false
 
 // default input mode unless otherwise specified in the flash memory
-#define DEFAULT_INPUT_MODE INPUT_MODE_SERIAL
+#define DEFAULT_INPUT_MODE INPUT_MODE_PIUIO
 
 // use software SPI to control latch for outputs
 // for some reason hardware SPI wasn't working right for me so I have it enabled
-#define SOFTWARE_LATCH
+//#define SOFTWARE_LATCH
 
 // toggle pin on and off on the main loop for debugging purposes
 // #define BENCHMARK
@@ -69,28 +69,13 @@
 
 // enable pullup resistors for inputs
 // (only disable this if you know what you are doing!)
-#define PULLUP_IN
+//#define PULLUP_IN
 
 #define MUX_GLOBAL 4
 #define MUX_COUNT 5
 
 #define MAX_USB_POWER 0xFA  // (500mA)
 
-// Uncomment these defines to enable WS2812 LED support. NOT WORKING WITH brokeIO
-//#define ENABLE_WS2812_SUPPORT
-//#define WS2812_IS_RGBW false
-//#define WS2812_PIN 22
-
-// Modify these to edit the colors of the cabinet lamps.
-#ifdef ENABLE_WS2812_SUPPORT
-static uint32_t ws2812_color[5] = {
-        urgb_u32(0, 255, 0),    // Lower left
-        urgb_u32(255, 0, 0),    // Upper left
-        urgb_u32(0, 0, 255),    // Bass / neon
-        urgb_u32(255, 0, 0),    // Upper right
-        urgb_u32(0, 255, 0)     // Lower right
-};
-#endif
 
 // helper defines
 
@@ -102,167 +87,16 @@ static uint32_t ws2812_color[5] = {
 #define LSB(n) (n & 255)
 #define MSB(n) ((n >> 8) & 255)
 
-
-// prototype boards from july to december 2023 have a different pinout (blue, forward facing molex)
-//#define IDC_FLIP_REV
-
-#if defined(IDC_FLIP_REV)
-// Modify these arrays to edit the pin out.
-// Map these according to your button pins.
-#define MUX4067_P1_UPLEFT 7
-#define MUX4067_P1_UPRIGHT 6
-#define MUX4067_P1_CENTER 5
-#define MUX4067_P1_DOWNLEFT 4
-#define MUX4067_P1_DOWNRIGHT 3
-
-#define MUX4067_P2_UPLEFT 20
-#define MUX4067_P2_UPRIGHT 19
-#define MUX4067_P2_CENTER 18
-#define MUX4067_P2_DOWNLEFT 17
-#define MUX4067_P2_DOWNRIGHT 16
-
-#define MUX4067_P1_COIN 10
-#define MUX4067_P2_COIN 29
-
-#define MUX4067_TEST 9
-#define MUX4067_SERVICE 14
-#define MUX4067_CLEAR 15
-
-#define MUX4067_JAMMA_Q 11
-#define MUX4067_JAMMA_17 28
-#define MUX4067_JAMMA_W 2
-#define MUX4067_JAMMA_X 1
-#define MUX4067_JAMMA_Y 0
-#define MUX4067_JAMMA_Z 8
-
-// Map these according to your LED pins.
-#define LATCH_P1L_UPLEFT 2
-#define LATCH_P1L_UPRIGHT 3
-#define LATCH_P1L_CENTER 4
-#define LATCH_P1L_DOWNLEFT 5
-#define LATCH_P1L_DOWNRIGHT 6
-
-#define LATCH_P2L_UPLEFT 18
-#define LATCH_P2L_UPRIGHT 19
-#define LATCH_P2L_CENTER 20
-#define LATCH_P2L_DOWNLEFT 21
-#define LATCH_P2L_DOWNRIGHT 22
-
-#define LATCH_P1_S0 0
-#define LATCH_P1_S1 1
-#define LATCH_P2_S0 16
-#define LATCH_P2_S1 17
-
-#define LATCH_CABL_MARQ1 25
-#define LATCH_CABL_MARQ2 23
-#define LATCH_CABL_MARQ3 24
-#define LATCH_CABL_MARQ4 26
-#define LATCH_CABL_NEON 10
-
-#define LATCH_COIN_COUNTER 28
-#define LATCH_ALWAYS_ON 27
-
-#define LATCH_JAMMA_LED 14
-#else
-// Modify these arrays to edit the pin out.
-// Map these according to your button pins.
-#define MUX4067_P1_UPLEFT 23
-#define MUX4067_P1_UPRIGHT 22
-#define MUX4067_P1_CENTER 21
-#define MUX4067_P1_DOWNLEFT 20
-#define MUX4067_P1_DOWNRIGHT 19
-
-#define MUX4067_P2_UPLEFT 4
-#define MUX4067_P2_UPRIGHT 3
-#define MUX4067_P2_CENTER 2
-#define MUX4067_P2_DOWNLEFT 1
-#define MUX4067_P2_DOWNRIGHT 0
-
-#define MUX4067_P1_COIN 29
-#define MUX4067_P2_COIN 10
-
-#define MUX4067_TEST 30
-#define MUX4067_SERVICE 25
-#define MUX4067_CLEAR 24
-
-#define MUX4067_JAMMA_Q 28
-#define MUX4067_JAMMA_17 11
-#define MUX4067_JAMMA_W 18
-#define MUX4067_JAMMA_X 17
-#define MUX4067_JAMMA_Y 16
-#define MUX4067_JAMMA_Z 31
-
-// Map these according to your LED pins.
-#define LATCH_P1L_UPLEFT 29
-#define LATCH_P1L_UPRIGHT 28
-#define LATCH_P1L_CENTER 27
-#define LATCH_P1L_DOWNLEFT 26
-#define LATCH_P1L_DOWNRIGHT 25
-
-#define LATCH_P2L_UPLEFT 13
-#define LATCH_P2L_UPRIGHT 12
-#define LATCH_P2L_CENTER 11
-#define LATCH_P2L_DOWNLEFT 10
-#define LATCH_P2L_DOWNRIGHT 9
-
-#define LATCH_P1_S0 31
-#define LATCH_P1_S1 30
-#define LATCH_P2_S0 15
-#define LATCH_P2_S1 14
-
-#define LATCH_CABL_MARQ1 6
-#define LATCH_CABL_MARQ2 8
-#define LATCH_CABL_MARQ3 7
-#define LATCH_CABL_MARQ4 5
-#define LATCH_CABL_NEON 21
-
-#define LATCH_COIN_COUNTER 3
-#define LATCH_ALWAYS_ON 4
-
-#define LATCH_JAMMA_LED 20
-
-#endif
-
-// other pins
-#define MUX_ENABLE_PIN 21
-#define MUX1_IN_PIN 26
-#define MUX2_IN_PIN 27
-
-#define MUX_S0_PIN 22
-#define MUX_S1_PIN 23
-#define MUX_S2_PIN 24
-#define MUX_S3_PIN 25
-
-#define LATCH_ENABLE_PIN 20
-#define LATCH_RST_PIN 19
-#define LATCH_RCLK_PIN 18
-
-#define SOFTWARE_SPI_DIN_PIN 9
-#define SOFTWARE_SPI_CLK_PIN 8
-
-#define UART_TX_PIN 16
-#define UART_RX_PIN 17
-#define UART_SHDN_PIN 14
-#define UART_RE_PIN 15
-
-#define BENCHMARK_PIN_1 4
-#define BENCHMARK_PIN_2 5
-#define BENCHMARK_PIN_3 6
-#define BENCHMARK_PIN_4 7
-
-
 // other defines
 // offset from XIP_BASE, let's make it 1MiB from the start
 #define INPUT_MODE_OFFSET (1024 * 1024)
-// turn LED on for 200ms every 400ms 
-#define SERVICE_BLINK_LENGTH 200
-#define SERVICE_BLINK_INTERVAL 400
+
 
 
 // UART defines
-#define UART_HOST true
-#define UART_HOST_ID '0'
-#define UART_DEVICE_ID '1'
+//#define UART_HOST true
+//#define UART_HOST_ID '0'
+//#define UART_DEVICE_ID '1'
 
 
 // HID defines
