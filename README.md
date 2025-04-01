@@ -17,13 +17,9 @@ You can find a demo video of the wokeIO in action [here](https://www.youtube.com
 
 - Replacement controller board for PIU soft and hard pads
 - Multiple USB modes: PIUIO, Gamepad (DInput), LXIO, Keyboard, XInput, Nintendo Switch
-<!-- 
-	yeah no we are too lazy for that
 - Built-in debouncing
-!-->
 - 1000Hz polling rate (in theory)
 - Updatable through USB, no separate tool required
-- Simplified version available in `simple` branch with only PIUIO, LXIO and Gamepad mode for easier blind switching
 
 ## Disclaimers
 
