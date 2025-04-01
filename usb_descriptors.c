@@ -23,7 +23,6 @@
 #include "descriptors/switch_desc.h"
 #include "descriptors/xinput_desc.h"
 #include "descriptors/gamecube_desc.h"
-//#include "descriptors/serial_desc.h"
 
 
 /* A combination of interfaces must have a unique product id, since PC will save device driver after the first plug.
@@ -66,9 +65,6 @@ uint8_t const *tud_descriptor_device_cb(void)
 
         case INPUT_MODE_GAMECUBE:
             return gamecube_device_descriptor;
-
-		//case INPUT_MODE_SERIAL:
-        //    return (uint8_t const*)&serial_device_descriptor;
 
         default:
             return (uint8_t const*)&piuio_device_descriptor;
@@ -132,9 +128,6 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index)
         case INPUT_MODE_GAMECUBE:
             return gamecube_configuration_descriptor;
 
-		//case INPUT_MODE_SERIAL:
-        //    return serial_configuration_descriptor;
-
         default:
             return piuio_configuration_descriptor;
     }
@@ -192,10 +185,6 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid)
         case INPUT_MODE_GAMECUBE:
             string_desc_arr = (const char**)gamecube_string_descriptors;
             break;
-
-		//case INPUT_MODE_SERIAL:
-        //    string_desc_arr = (const char**)serial_string_descriptors;
-        //    break;
 
         default:
             string_desc_arr = (const char**)piuio_string_descriptors;

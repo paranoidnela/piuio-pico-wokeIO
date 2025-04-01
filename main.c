@@ -30,6 +30,18 @@
 #include "xinput_driver.h"
 #include "device/usbd_pvt.h"
 
+
+typedef struct {
+    bool current;
+    bool last;
+    uint32_t stable_count;
+} DebouncedButton;
+
+DebouncedButton p1_ul, p1_ur, p1_cn, p1_dl, p1_dr;
+DebouncedButton p2_ul, p2_ur, p2_cn, p2_dl, p2_dr;
+DebouncedButton test, service, mode_switch;
+
+
 int input_mode = -1;
 int input_mode_tmp = -1;
 
@@ -48,7 +60,7 @@ bool jamma_x = false;
 bool jamma_y = false;
 bool jamma_z = false;
 
-bool mode_switch = false;
+bool change_mode_switch = false;
 
 // used for auto mux mode
 uint8_t current_mux = 0;
@@ -73,6 +85,9 @@ struct inputArray last_input = {
 // use this array for PIUIO when all inputs should be off
 const uint8_t all_inputs_off[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
+const uint8_t pin_list[13] = {21, 6, 10, 19, 8, 27, 0, 2, 17, 4, 14, 15, 24};
+
+
 struct inputArray input_mux[MUX_COUNT];
 
 
@@ -83,7 +98,23 @@ struct lightsArray lights = {
 };
 
 
+//TODO: this sucks
+void debounce_button(DebouncedButton *button, bool new_state) {
+    if (new_state != button->current) {
+        button->stable_count++;
+        if (button->stable_count >= DEBOUNCE_COUNT) {
+            button->current = new_state;
+            button->stable_count = 0;
+        }
+    } else {
+        button->stable_count = 0;
+    }
+}
+
+//TODO: this also sucks
 void update_input_mux() {
+
+    if (!DEBOUNCING) {
     input.p1_ul = gpio_get(19);
     input.p1_ur = gpio_get(6);
     input.p1_cn = gpio_get(10);
@@ -102,39 +133,69 @@ void update_input_mux() {
     input.test = gpio_get(14);
     input.service = gpio_get(15);
     input.clear = true;
-
-    //TODO: this sucks and is only needed for lxio, I think
-    for (int i = 0; i < MUX_COUNT; i++) {
-        // logic is negative
-        input_mux[i].p1_ul = input.p1_ul;
-        input_mux[i].p1_ur = input.p1_ur;
-        input_mux[i].p1_cn = input.p1_cn;
-        input_mux[i].p1_dl = input.p1_dl;
-        input_mux[i].p1_dr = input.p1_dr;
-
-        input_mux[i].p2_ul = input.p2_ul;
-        input_mux[i].p2_ur = input.p2_ur;
-        input_mux[i].p2_cn = input.p2_cn;
-        input_mux[i].p2_dl = input.p2_dl;
-        input_mux[i].p2_dr = input.p2_dr;
-
-        input_mux[i].p1_coin = input.p1_coin;
-        input_mux[i].p2_coin = input.p2_coin;
-
-        input_mux[i].test = input.test;
-        input_mux[i].service = input.service;
-        input_mux[i].clear = input.clear;
+    change_mode_switch = gpio_get(24);
     }
 
-    //this is to change modes without any of the holding buttons bs
-    mode_switch = gpio_get(22); 
+    if (DEBOUNCING) {
+    bool raw_p1_ul = gpio_get(19);
+    bool raw_p1_ur = gpio_get(6);
+    bool raw_p1_cn = gpio_get(10);
+    bool raw_p1_dl = gpio_get(21);
+    bool raw_p1_dr = gpio_get(8);
+
+    bool raw_p2_ul = gpio_get(27);
+    bool raw_p2_ur = gpio_get(0);
+    bool raw_p2_cn = gpio_get(2);
+    bool raw_p2_dl = gpio_get(17);
+    bool raw_p2_dr = gpio_get(4);
+
+    bool raw_test = gpio_get(14);
+    bool raw_service = gpio_get(15);
+    bool raw_mode_switch = gpio_get(24); //this should be the usr button on knockoff rp2040s
+
+    debounce_button(&p1_ul, raw_p1_ul);
+    debounce_button(&p1_ur, raw_p1_ur);
+    debounce_button(&p1_cn, raw_p1_cn);
+    debounce_button(&p1_dl, raw_p1_dl);
+    debounce_button(&p1_dr, raw_p1_dr);
+
+    debounce_button(&p2_ul, raw_p2_ul);
+    debounce_button(&p2_ur, raw_p2_ur);
+    debounce_button(&p2_cn, raw_p2_cn);
+    debounce_button(&p2_dl, raw_p2_dl);
+    debounce_button(&p2_dr, raw_p2_dr);
+
+    debounce_button(&test, raw_test);
+    debounce_button(&service, raw_service);
+    debounce_button(&mode_switch, raw_mode_switch);
+
+    input.p1_ul = p1_ul.current;
+    input.p1_ur = p1_ur.current;
+    input.p1_cn = p1_cn.current;
+    input.p1_dl = p1_dl.current;
+    input.p1_dr = p1_dr.current;
+
+    input.p2_ul = p2_ul.current;
+    input.p2_ur = p2_ur.current;
+    input.p2_cn = p2_cn.current;
+    input.p2_dl = p2_dl.current;
+    input.p2_dr = p2_dr.current;
+
+    input.p1_coin = true;
+    input.p2_coin = true;
+
+    input.test = test.current;
+    input.service = service.current;
+    input.clear = true;
+
+    change_mode_switch = mode_switch.current;
+    }
 
 }
 
 void input_task() {
     uint32_t current_ts = board_millis();
 
-    //TODO: implement gpio debounce
     update_input_mux();
 
     
@@ -143,10 +204,10 @@ void input_task() {
             input_mode_tmp = (input_mode_tmp + 1) % INPUT_MODE_COUNT;
         }
     }
-    
+
     //TODO: no clue why it doesn't work, too tired to fix it
 /*
-    if (mode_switch) {
+    if (change_mode_switch) {
         input_mode_tmp = input_mode + 1;
         write_input_mode(input_mode_tmp);
         watchdog_enable(1, 1);
@@ -224,6 +285,8 @@ uint16_t get_report(void** report) {
         case INPUT_MODE_GAMEPAD:
             return hid_get_report((HIDReport**)report, &input);
 
+//this mode is still kind of shotty, it works but due to it's speed bouncing remains an issue in 1 sensor per panel setups
+
         case INPUT_MODE_LXIO: 
             return lxio_get_report((uint8_t**)report, &input, input_mux);
 
@@ -256,50 +319,15 @@ void hid_task() {
     receive_report(hid_rx_buf);
 }
 
-//TODO: this majorly sucks
 void gpio_def() {
-    gpio_init(21);
-    gpio_init(6);
-    gpio_init(10);
-    gpio_init(19);
-    gpio_init(8);
-    gpio_init(27);
-    gpio_init(0);
-    gpio_init(2);
-    gpio_init(17);
-    gpio_init(4);
-    gpio_init(14);
-    gpio_init(15);
-    gpio_init(22);
-
-    gpio_set_dir(21, false);
-    gpio_set_dir(6, false);
-    gpio_set_dir(10, false);
-    gpio_set_dir(19, false);
-    gpio_set_dir(8, false);
-    gpio_set_dir(27, false);
-    gpio_set_dir(0, false);
-    gpio_set_dir(2, false);
-    gpio_set_dir(17, false);
-    gpio_set_dir(4, false);
-    gpio_set_dir(14, false);
-    gpio_set_dir(15, false);
-    gpio_set_dir(22, false);
-
-    gpio_pull_up(21);
-    gpio_pull_up(6);
-    gpio_pull_up(10);
-    gpio_pull_up(19);
-    gpio_pull_up(8);
-    gpio_pull_up(27);
-    gpio_pull_up(0);
-    gpio_pull_up(2);
-    gpio_pull_up(17);
-    gpio_pull_up(4);
-    gpio_pull_up(14);
-    gpio_pull_up(15);
-    gpio_pull_up(22);
+    int i;
+    for (i = 0; i < 13; i++) {
+        gpio_init(pin_list[i]);
+        gpio_set_dir(pin_list[i], false);
+        gpio_pull_up(pin_list[i]);
+    }
 }
+
 
 int main() {
     board_init();

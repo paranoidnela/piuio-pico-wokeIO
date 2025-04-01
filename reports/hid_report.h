@@ -125,20 +125,21 @@ uint16_t hid_get_report(HIDReport** report, struct inputArray* input) {
     //     case GAMEPAD_MASK_UP | GAMEPAD_MASK_LEFT:    hidReport.direction = HID_HAT_UPLEFT;    break;
     //     default:                                     hidReport.direction = HID_HAT_NOTHING;   break;
     // }
-/*
+
+if (!GAMEPAD_LTEK_MODE) {
     hidReport.p1_ul = !input->p1_ul;
     hidReport.p1_ur = !input->p1_ur;
     hidReport.p1_cn = !input->p1_cn; 
     hidReport.p1_dl = !input->p1_dl; 
     hidReport.p1_dr = !input->p1_dr; 
-*/
-    //ltek compatible p1
+}
+if (GAMEPAD_LTEK_MODE) {
     hidReport.p1_ul = !input->p1_ul;
     hidReport.p1_ur = !input->p1_ur;
     hidReport.p1_cn = !input->p1_dl; //modified for ltek compatibility
     hidReport.p1_dl = !input->p1_dr; //modified for ltek compatibility
     hidReport.p1_dr = !input->p1_cn; //modified for ltek compatibility
-
+}
     hidReport.p2_ul = !input->p2_ul;
     hidReport.p2_ur = !input->p2_ur;
     hidReport.p2_cn = !input->p2_cn;

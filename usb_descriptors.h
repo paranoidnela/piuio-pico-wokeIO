@@ -26,7 +26,6 @@ enum
     INPUT_MODE_XINPUT,
     INPUT_MODE_SWITCH,
     INPUT_MODE_GAMECUBE,
-    //INPUT_MODE_SERIAL, //no clue why this is even here tbh, wouldn't work anyway
     INPUT_MODE_COUNT
 };
 

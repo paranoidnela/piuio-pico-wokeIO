@@ -187,53 +187,53 @@ LXIOOutputReport_t lxioOutputReport = {
 uint16_t lxio_get_report(uint8_t** report, struct inputArray* input, struct inputArray* input_mux) {
     memset(lxioInputReport.data, 0xFF, 16);
 
-    lxioInputReport.p1_dl_mux0 = input_mux[0].p1_dl;
-    lxioInputReport.p1_ul_mux0 = input_mux[0].p1_ul;
-    lxioInputReport.p1_cn_mux0 = input_mux[0].p1_cn;
-    lxioInputReport.p1_ur_mux0 = input_mux[0].p1_ur;
-    lxioInputReport.p1_dr_mux0 = input_mux[0].p1_dr;
+    lxioInputReport.p1_dl_mux0 = input->p1_dl;
+    lxioInputReport.p1_ul_mux0 = input->p1_ul;
+    lxioInputReport.p1_cn_mux0 = input->p1_cn;
+    lxioInputReport.p1_ur_mux0 = input->p1_ur;
+    lxioInputReport.p1_dr_mux0 = input->p1_dr;
 
-    lxioInputReport.p1_dl_mux1 = input_mux[1].p1_dl;
-    lxioInputReport.p1_ul_mux1 = input_mux[1].p1_ul;
-    lxioInputReport.p1_cn_mux1 = input_mux[1].p1_cn;
-    lxioInputReport.p1_ur_mux1 = input_mux[1].p1_ur;
-    lxioInputReport.p1_dr_mux1 = input_mux[1].p1_dr;
+    lxioInputReport.p1_dl_mux1 = input->p1_dl;
+    lxioInputReport.p1_ul_mux1 = input->p1_ul;
+    lxioInputReport.p1_cn_mux1 = input->p1_cn;
+    lxioInputReport.p1_ur_mux1 = input->p1_ur;
+    lxioInputReport.p1_dr_mux1 = input->p1_dr;
 
-    lxioInputReport.p1_dl_mux2 = input_mux[2].p1_dl;
-    lxioInputReport.p1_ul_mux2 = input_mux[2].p1_ul;
-    lxioInputReport.p1_cn_mux2 = input_mux[2].p1_cn;
-    lxioInputReport.p1_ur_mux2 = input_mux[2].p1_ur;
-    lxioInputReport.p1_dr_mux2 = input_mux[2].p1_dr;
+    lxioInputReport.p1_dl_mux2 = input->p1_dl;
+    lxioInputReport.p1_ul_mux2 = input->p1_ul;
+    lxioInputReport.p1_cn_mux2 = input->p1_cn;
+    lxioInputReport.p1_ur_mux2 = input->p1_ur;
+    lxioInputReport.p1_dr_mux2 = input->p1_dr;
 
-    lxioInputReport.p1_dl_mux3 = input_mux[3].p1_dl;
-    lxioInputReport.p1_ul_mux3 = input_mux[3].p1_ul;
-    lxioInputReport.p1_cn_mux3 = input_mux[3].p1_cn;
-    lxioInputReport.p1_ur_mux3 = input_mux[3].p1_ur;
-    lxioInputReport.p1_dr_mux3 = input_mux[3].p1_dr;
+    lxioInputReport.p1_dl_mux3 = input->p1_dl;
+    lxioInputReport.p1_ul_mux3 = input->p1_ul;
+    lxioInputReport.p1_cn_mux3 = input->p1_cn;
+    lxioInputReport.p1_ur_mux3 = input->p1_ur;
+    lxioInputReport.p1_dr_mux3 = input->p1_dr;
 
-    lxioInputReport.p2_dl_mux0 = input_mux[0].p2_dl;
-    lxioInputReport.p2_ul_mux0 = input_mux[0].p2_ul;
-    lxioInputReport.p2_cn_mux0 = input_mux[0].p2_cn;
-    lxioInputReport.p2_ur_mux0 = input_mux[0].p2_ur;
-    lxioInputReport.p2_dr_mux0 = input_mux[0].p2_dr;
+    lxioInputReport.p2_dl_mux0 = input->p2_dl;
+    lxioInputReport.p2_ul_mux0 = input->p2_ul;
+    lxioInputReport.p2_cn_mux0 = input->p2_cn;
+    lxioInputReport.p2_ur_mux0 = input->p2_ur;
+    lxioInputReport.p2_dr_mux0 = input->p2_dr;
 
-    lxioInputReport.p2_dl_mux1 = input_mux[1].p2_dl;
-    lxioInputReport.p2_ul_mux1 = input_mux[1].p2_ul;
-    lxioInputReport.p2_cn_mux1 = input_mux[1].p2_cn;
-    lxioInputReport.p2_ur_mux1 = input_mux[1].p2_ur;
-    lxioInputReport.p2_dr_mux1 = input_mux[1].p2_dr;
+    lxioInputReport.p2_dl_mux1 = input->p2_dl;
+    lxioInputReport.p2_ul_mux1 = input->p2_ul;
+    lxioInputReport.p2_cn_mux1 = input->p2_cn;
+    lxioInputReport.p2_ur_mux1 = input->p2_ur;
+    lxioInputReport.p2_dr_mux1 = input->p2_dr;
 
-    lxioInputReport.p2_dl_mux2 = input_mux[2].p2_dl;
-    lxioInputReport.p2_ul_mux2 = input_mux[2].p2_ul;
-    lxioInputReport.p2_cn_mux2 = input_mux[2].p2_cn;
-    lxioInputReport.p2_ur_mux2 = input_mux[2].p2_ur;
-    lxioInputReport.p2_dr_mux2 = input_mux[2].p2_dr;
+    lxioInputReport.p2_dl_mux2 = input->p2_dl;
+    lxioInputReport.p2_ul_mux2 = input->p2_ul;
+    lxioInputReport.p2_cn_mux2 = input->p2_cn;
+    lxioInputReport.p2_ur_mux2 = input->p2_ur;
+    lxioInputReport.p2_dr_mux2 = input->p2_dr;
 
-    lxioInputReport.p2_dl_mux3 = input_mux[3].p2_dl;
-    lxioInputReport.p2_ul_mux3 = input_mux[3].p2_ul;
-    lxioInputReport.p2_cn_mux3 = input_mux[3].p2_cn;
-    lxioInputReport.p2_ur_mux3 = input_mux[3].p2_ur;
-    lxioInputReport.p2_dr_mux3 = input_mux[3].p2_dr;
+    lxioInputReport.p2_dl_mux3 = input->p2_dl;
+    lxioInputReport.p2_ul_mux3 = input->p2_ul;
+    lxioInputReport.p2_cn_mux3 = input->p2_cn;
+    lxioInputReport.p2_ur_mux3 = input->p2_ur;
+    lxioInputReport.p2_dr_mux3 = input->p2_dr;
 
     lxioInputReport.p1_coin = input->p1_coin;
     lxioInputReport.p2_coin = input->p2_coin;

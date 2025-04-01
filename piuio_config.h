@@ -14,30 +14,13 @@
 
 // debounce time in milliseconds
 // adjust if you are getting misfires!
-// does nothing rn, debounce needs to be implemented
-#define DEBOUNCE_PRESS_TIME 15
-#define DEBOUNCE_RELEASE_TIME 15
+#define DEBOUNCE_COUNT 50
 
 // enable debouncing
-#define DEBOUNCING
+#define DEBOUNCING true
 
 // use joystick instead of d-pad in Switch mode
 #define SWITCH_JOYSTICK
-
-// merge all sensor inputs, improving response time at the cost of not being able
-// to read individual sensors in the service menu.
-// in PIUIO mode, one poll reads one sensor per panel (10/40 sensors per poll).
-// official games only poll the PIUIO every 10ms, which is 100Hz best case but
-// 25Hz worst case the game is reading the wrong sensor.
-// setting this to true will improve sensor press polling to always be 100Hz,
-// but release polling will still be 25Hz worst case.
-#define MERGE_MUX_PIUIO false
-
-// time in microseconds to wait between input/lights operations
-// this accounts for variance in the brokeIO's multiplexer and latch chips
-// the delay is negligible, so you would not notice it
-//#define WAIT_INPUT_MUX4067 20
-//#define WAIT_LIGHTS_LATCH32 20
 
 // always allow pad combo to enter bootloader; otherwise, it must be done in the service mode
 #define ALWAYS_BOOTLOADER false
@@ -45,12 +28,8 @@
 // default input mode unless otherwise specified in the flash memory
 #define DEFAULT_INPUT_MODE INPUT_MODE_PIUIO
 
-// use software SPI to control latch for outputs
-// for some reason hardware SPI wasn't working right for me so I have it enabled
-//#define SOFTWARE_LATCH
-
-// toggle pin on and off on the main loop for debugging purposes
-// #define BENCHMARK
+// set HID Gamepad mode to L-TEK layout instead of brokeIO defaults for support with existing hooks
+#define GAMEPAD_LTEK_MODE true
 
 // uncomment to always use the default input mode on boot instead of what's in the flash memory
 // disables reading/writing to flash also
@@ -66,10 +45,6 @@
 #define PRODUCT_ID_GAMEPAD      0x6181
 #define PRODUCT_ID_KEYBOARD     0x6182
 #define PRODUCT_ID_OTHER        0x6183
-
-// enable pullup resistors for inputs
-// (only disable this if you know what you are doing!)
-//#define PULLUP_IN
 
 #define MUX_GLOBAL 4
 #define MUX_COUNT 5
@@ -90,14 +65,6 @@
 // other defines
 // offset from XIP_BASE, let's make it 1MiB from the start
 #define INPUT_MODE_OFFSET (1024 * 1024)
-
-
-
-// UART defines
-//#define UART_HOST true
-//#define UART_HOST_ID '0'
-//#define UART_DEVICE_ID '1'
-
 
 // HID defines
 
